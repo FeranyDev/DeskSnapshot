@@ -1,0 +1,47 @@
+<Window
+    x:Class="DeskSnapshot.BackupPreviewWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid x:Name="RootGrid" Padding="32" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="5">
+                <TextBlock x:Name="BackupNameText" Style="{ThemeResource TitleTextBlockStyle}" />
+                <TextBlock x:Name="BackupSummaryText" Foreground="{ThemeResource MutedTextBrush}" />
+                <TextBlock x:Name="BackupNoteText" Foreground="{ThemeResource MutedTextBrush}" TextWrapping="Wrap" Visibility="Collapsed" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="关闭预览" Click="Close_Click" VerticalAlignment="Top" />
+        </Grid>
+
+        <Border Grid.Row="2"
+                CornerRadius="16"
+                BorderThickness="1"
+                BorderBrush="#9664A5FF"
+                Background="#12253A"
+                Padding="18">
+            <Grid>
+                <Viewbox Stretch="Uniform" StretchDirection="Both">
+                    <Canvas x:Name="LayoutCanvas" Width="1200" Height="675" />
+                </Viewbox>
+                <Border HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Padding="12,6"
+                        Margin="10"
+                        CornerRadius="14"
+                        Background="#75000000">
+                    <TextBlock x:Name="PreviewHintText" Foreground="White" FontSize="12" />
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

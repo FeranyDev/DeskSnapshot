@@ -1,0 +1,46 @@
+<Application
+    x:Class="DeskSnapshot.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="CardBrush" Color="#F7FFFFFF" />
+                    <SolidColorBrush x:Key="SubtleBrush" Color="#0B000000" />
+                    <SolidColorBrush x:Key="MutedTextBrush" Color="#99000000" />
+                    <SolidColorBrush x:Key="RailBrush" Color="#EAF4FB" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="CardBrush" Color="#CC202124" />
+                    <SolidColorBrush x:Key="SubtleBrush" Color="#12FFFFFF" />
+                    <SolidColorBrush x:Key="MutedTextBrush" Color="#AFFFFFFF" />
+                    <SolidColorBrush x:Key="RailBrush" Color="#D91A2026" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <Style x:Key="NavButtonStyle" TargetType="Button">
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                <Setter Property="Height" Value="44" />
+                <Setter Property="Margin" Value="8,3" />
+                <Setter Property="Padding" Value="14,0" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="14" />
+                <Setter Property="Padding" Value="20" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
