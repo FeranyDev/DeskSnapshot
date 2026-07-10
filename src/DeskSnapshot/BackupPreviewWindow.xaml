@@ -30,9 +30,16 @@
                 Background="#12253A"
                 Padding="18">
             <Grid>
-                <Viewbox Stretch="Uniform" StretchDirection="Both">
+                <Viewbox Stretch="Fill">
                     <Canvas x:Name="LayoutCanvas" Width="1200" Height="675" />
                 </Viewbox>
+                <TextBlock x:Name="EmptyPreviewText"
+                           Text="此备份没有可显示的图标位置"
+                           Foreground="White"
+                           FontSize="18"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Visibility="Collapsed" />
                 <Border HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Padding="12,6"

@@ -257,7 +257,7 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        var previewWindow = new BackupPreviewWindow(selected.Backup);
+        var previewWindow = new BackupPreviewWindow(selected.Backup, this);
         _previewWindows.Add(previewWindow);
         previewWindow.Closed += (_, _) => _previewWindows.Remove(previewWindow);
         previewWindow.Activate();

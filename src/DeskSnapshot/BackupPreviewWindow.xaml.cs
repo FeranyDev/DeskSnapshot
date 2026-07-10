@@ -4,6 +4,7 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using System.Runtime.InteropServices;
 using Windows.Graphics;
 
 namespace DeskSnapshot;
@@ -14,7 +15,7 @@ public sealed partial class BackupPreviewWindow : Window
     private const double IconSize = 20;
     private const double Inset = 14;
 
-    public BackupPreviewWindow(DesktopLayoutBackup backup)
+    public BackupPreviewWindow(DesktopLayoutBackup backup, Window owner)
     {
         InitializeComponent();
         Title = $"{backup.Name} - 布局预览";
@@ -28,20 +29,26 @@ public sealed partial class BackupPreviewWindow : Window
             // Mica 不可用时保留默认背景。
         }
 
-        ConfigureWindowSize();
+        ConfigureWindow(owner);
         PopulateHeader(backup);
         DrawLayout(backup);
     }
 
-    private void ConfigureWindowSize()
+    private void ConfigureWindow(Window owner)
     {
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(this);
         var windowId = Win32Interop.GetWindowIdFromWindow(handle);
         var appWindow = AppWindow.GetFromWindowId(windowId);
-        var workArea = DisplayArea.GetFromWindowId(windowId, DisplayAreaFallback.Primary).WorkArea;
+        var ownerHandle = WinRT.Interop.WindowNative.GetWindowHandle(owner);
+        var ownerWindowId = Win32Interop.GetWindowIdFromWindow(ownerHandle);
+        var workArea = DisplayArea.GetFromWindowId(ownerWindowId, DisplayAreaFallback.Nearest).WorkArea;
 
-        var width = Math.Min(1800, (int)(workArea.Width * 0.84));
-        var height = Math.Min(1100, (int)(workArea.Height * 0.82));
+        // Make this an owned window so it stays with the main window on the same
+        // display and cannot be placed behind it or on another desktop area.
+        SetWindowLongPtr(handle, GwlpHwndParent, ownerHandle);
+
+        var width = (int)(workArea.Width * 0.80);
+        var height = (int)(workArea.Height * 0.80);
         var x = workArea.X + (workArea.Width - width) / 2;
         var y = workArea.Y + (workArea.Height - height) / 2;
         appWindow.MoveAndResize(new RectInt32(x, y, width, height));
@@ -63,6 +70,13 @@ public sealed partial class BackupPreviewWindow : Window
 
     private void DrawLayout(DesktopLayoutBackup backup)
     {
+        if (backup.Icons.Count == 0)
+        {
+            EmptyPreviewText.Visibility = Visibility.Visible;
+            App.Log($"Backup preview opened with no icons: {backup.Id}");
+            return;
+        }
+
         var coordinateWidth = Math.Max(1d, backup.Environment.VirtualWidth);
         var coordinateHeight = Math.Max(1d, backup.Environment.VirtualHeight);
         var canvasHeight = Math.Clamp(CanvasWidth * coordinateHeight / coordinateWidth, 420, 820);
@@ -97,7 +111,14 @@ public sealed partial class BackupPreviewWindow : Window
             Canvas.SetTop(tile, top);
             LayoutCanvas.Children.Add(tile);
         }
+
+        App.Log($"Backup preview rendered {LayoutCanvas.Children.Count} icons for {backup.Id}");
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+    private const int GwlpHwndParent = -8;
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
+    private static extern IntPtr SetWindowLongPtr(IntPtr window, int index, IntPtr newValue);
 }
