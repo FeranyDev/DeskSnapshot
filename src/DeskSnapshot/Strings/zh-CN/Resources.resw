@@ -86,6 +86,12 @@
   <data name="BusyInitial.Text" xml:space="preserve"><value>正在处理桌面布局…</value></data>
   <data name="PreviewRestoreButton.Text" xml:space="preserve"><value>恢复布局</value></data>
   <data name="PreviewEmpty.Text" xml:space="preserve"><value>此备份没有可显示的图标位置</value></data>
+  <data name="ComparisonLoading.Text" xml:space="preserve"><value>正在与当前桌面对比…</value></data>
+  <data name="LegendMoved.Text" xml:space="preserve"><value>已移动</value></data>
+  <data name="LegendAdded.Text" xml:space="preserve"><value>当前新增</value></data>
+  <data name="LegendMissing.Text" xml:space="preserve"><value>当前缺失</value></data>
+  <data name="LegendUnchanged.Text" xml:space="preserve"><value>未变化</value></data>
+  <data name="ShowChangesOnly.Content" xml:space="preserve"><value>仅显示变化</value></data>
   <data name="WindowTitle" xml:space="preserve"><value>DeskSnapshot - 桌面布局备份</value></data>
   <data name="VersionFormat" xml:space="preserve"><value>版本 {0}.{1}.{2}</value></data>
   <data name="ReadFailed" xml:space="preserve"><value>读取失败</value></data>
@@ -155,6 +161,23 @@
   <data name="PreviewSummaryFormat" xml:space="preserve"><value>{0} · {1} 个图标 · {2} × {3} · DPI {4} · {5} 台显示器</value></data>
   <data name="PreviewMonitorsFormat" xml:space="preserve"><value>显示器：{0}</value></data>
   <data name="PreviewHint" xml:space="preserve"><value>悬停图标查看名称和坐标</value></data>
+  <data name="PreviewEmptyText" xml:space="preserve"><value>此备份没有可显示的图标位置</value></data>
+  <data name="ComparisonCurrentLayout" xml:space="preserve"><value>当前桌面对比快照</value></data>
+  <data name="ComparisonFailedFormat" xml:space="preserve"><value>无法读取当前桌面进行对比：{0}</value></data>
+  <data name="ComparisonSummaryFormat" xml:space="preserve"><value>与当前桌面对比：移动 {0} · 新增 {1} · 缺失 {2} · 未变化 {3}</value></data>
+  <data name="DifferenceVirtualSize" xml:space="preserve"><value>虚拟桌面尺寸</value></data>
+  <data name="DifferenceDpi" xml:space="preserve"><value>DPI</value></data>
+  <data name="DifferenceMonitorCount" xml:space="preserve"><value>显示器数量</value></data>
+  <data name="DifferenceMonitorLayout" xml:space="preserve"><value>显示器设备或排列</value></data>
+  <data name="EnvironmentMatches" xml:space="preserve"><value>显示环境与备份一致。</value></data>
+  <data name="EnvironmentDifferencesFormat" xml:space="preserve"><value>显示环境变化：{0}</value></data>
+  <data name="AmbiguousMatchesFormat" xml:space="preserve"><value>{0} 个同名图标按 Explorer 中的出现顺序匹配，结果可能不唯一。</value></data>
+  <data name="NoDifferences" xml:space="preserve"><value>当前桌面与此备份没有图标差异</value></data>
+  <data name="DifferenceMovedTooltipFormat" xml:space="preserve"><value>{0}&#x0A;当前位置 X {1} · Y {2} → 备份位置 X {3} · Y {4}</value></data>
+  <data name="DifferenceAddedTooltipFormat" xml:space="preserve"><value>{0}&#x0A;当前新增 · X {1} · Y {2}</value></data>
+  <data name="DifferenceMissingTooltipFormat" xml:space="preserve"><value>{0}&#x0A;当前缺失 · 备份位置 X {1} · Y {2}</value></data>
+  <data name="DifferenceUnchangedTooltipFormat" xml:space="preserve"><value>{0}&#x0A;位置未变化 · X {1} · Y {2}</value></data>
+  <data name="AmbiguousTooltip" xml:space="preserve"><value>存在同名图标，此项按出现顺序匹配。</value></data>
   <data name="PreviewNoteFormat" xml:space="preserve"><value>备注：{0}</value></data>
   <data name="NoBackupsYet" xml:space="preserve"><value>尚未备份</value></data>
   <data name="WaitingFirstBackup" xml:space="preserve"><value>等待首次备份</value></data>

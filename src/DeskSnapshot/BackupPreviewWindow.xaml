@@ -24,6 +24,15 @@
                     <TextBlock x:Name="BackupSummaryText" Foreground="{ThemeResource MutedTextBrush}" />
                     <TextBlock x:Name="BackupMonitorNamesText" Foreground="{ThemeResource MutedTextBrush}" TextWrapping="Wrap" Visibility="Collapsed" />
                     <TextBlock x:Name="BackupNoteText" Foreground="{ThemeResource MutedTextBrush}" TextWrapping="Wrap" Visibility="Collapsed" />
+                    <StackPanel x:Name="ComparisonPanel" Spacing="3" Margin="0,7,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ProgressRing x:Name="ComparisonProgress" Width="15" Height="15" IsActive="True" />
+                            <TextBlock x:Uid="ComparisonLoading" local:LocalizationBindings.Key="ComparisonLoading"
+                                       x:Name="ComparisonSummaryText" Text="正在与当前桌面对比…" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <TextBlock x:Name="EnvironmentDifferenceText" TextWrapping="Wrap" Foreground="{ThemeResource MutedTextBrush}" Visibility="Collapsed" />
+                        <TextBlock x:Name="AmbiguousDifferenceText" TextWrapping="Wrap" Foreground="#C57A00" Visibility="Collapsed" />
+                    </StackPanel>
                 </StackPanel>
                 <Button x:Name="PreviewRestoreButton"
                         Grid.Column="1"
@@ -48,10 +57,43 @@
                 Padding="12,7"
                 CornerRadius="8"
                 Background="{ThemeResource SubtleBrush}">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <FontIcon Glyph="&#xE946;" FontSize="13" />
-                <TextBlock x:Name="PreviewHintText" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
-            </StackPanel>
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" Spacing="14">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE946;" FontSize="13" />
+                        <TextBlock x:Name="PreviewHintText" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                    </StackPanel>
+                    <Rectangle Width="1" Height="16" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" />
+                    <StackPanel x:Name="DifferenceLegend" Orientation="Horizontal" Spacing="12" Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <Ellipse Width="9" Height="9" Fill="#FFB020" />
+                            <TextBlock x:Uid="LegendMoved" local:LocalizationBindings.Key="LegendMoved" Text="已移动" FontSize="12" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <Ellipse Width="9" Height="9" Fill="#2EBD85" />
+                            <TextBlock x:Uid="LegendAdded" local:LocalizationBindings.Key="LegendAdded" Text="当前新增" FontSize="12" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <Ellipse Width="9" Height="9" Fill="#F04438" />
+                            <TextBlock x:Uid="LegendMissing" local:LocalizationBindings.Key="LegendMissing" Text="当前缺失" FontSize="12" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <Ellipse Width="9" Height="9" Fill="#8FB9E8" />
+                            <TextBlock x:Uid="LegendUnchanged" local:LocalizationBindings.Key="LegendUnchanged" Text="未变化" FontSize="12" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                <CheckBox x:Uid="ShowChangesOnly" local:LocalizationBindings.Key="ShowChangesOnly"
+                          x:Name="ShowChangesOnlyCheckBox"
+                          Grid.Column="1"
+                          Content="仅显示变化"
+                          IsEnabled="False"
+                          Click="ShowChangesOnly_Click" />
+            </Grid>
         </Border>
 
         <Grid x:Name="PreviewHost" Grid.Row="4" SizeChanged="PreviewHost_SizeChanged">

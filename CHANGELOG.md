@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Manual, scheduled, event-triggered, tray, and pre-restore backups.
 - Timeline-based backup history with parent/child safety backups and batch deletion.
 - Large visual layout preview with direct restore action.
+- Current-desktop comparison with moved, added, missing, and unchanged icon visualization.
+- Display-environment difference detection, duplicate-name warnings, and a changes-only filter.
 - Monitor model, device identity, and optional monitor-aware restore.
 - Configurable automatic-backup retention.
 - Startup registration and notification-area background mode.

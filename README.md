@@ -18,6 +18,7 @@ DeskSnapshot 是一个轻量、离线的 Windows 桌面图标布局备份工具�
 - 将布局保存到本地 JSON 文件
 - 以日期时间线浏览历史备份，区分手动、自动和恢复前备份及其产生原因
 - 支持单选查看、恢复及多选批量删除备份
+- 在布局预览中对比当前桌面，标记移动、新增、缺失和未变化图标
 - 恢复布局前自动创建安全备份
 - 保存显示器名称、设备标识及排列位置，恢复时可选择让图标跟随原显示器
 - 显示分辨率、DPI、显示器数量和图标数量
@@ -109,6 +110,7 @@ artifacts/release/DeskSnapshot-<version>-win-x64/
 ## 参与和支持
 
 - 提交改动前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 和 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
+- 后续功能与验收清单见 [ROADMAP.md](ROADMAP.md)。
 - 使用问题与诊断信息见 [SUPPORT.md](SUPPORT.md)。
 - 安全漏洞请按 [SECURITY.md](SECURITY.md) 私下报告。
 - 版本变化记录在 [CHANGELOG.md](CHANGELOG.md)。

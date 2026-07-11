@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="src/DeskSnapshot/DeskSnapshot.csproj" />
+  <Project Path="tests/DeskSnapshot.ComparisonTests/DeskSnapshot.ComparisonTests.csproj" />
 </Solution>

@@ -86,6 +86,12 @@
   <data name="BusyInitial.Text" xml:space="preserve"><value>Processing desktop layout…</value></data>
   <data name="PreviewRestoreButton.Text" xml:space="preserve"><value>Restore layout</value></data>
   <data name="PreviewEmpty.Text" xml:space="preserve"><value>This backup has no icon positions to display</value></data>
+  <data name="ComparisonLoading.Text" xml:space="preserve"><value>Comparing with the current desktop…</value></data>
+  <data name="LegendMoved.Text" xml:space="preserve"><value>Moved</value></data>
+  <data name="LegendAdded.Text" xml:space="preserve"><value>Added now</value></data>
+  <data name="LegendMissing.Text" xml:space="preserve"><value>Missing now</value></data>
+  <data name="LegendUnchanged.Text" xml:space="preserve"><value>Unchanged</value></data>
+  <data name="ShowChangesOnly.Content" xml:space="preserve"><value>Changes only</value></data>
   <data name="WindowTitle" xml:space="preserve"><value>DeskSnapshot - Desktop layout backup</value></data>
   <data name="VersionFormat" xml:space="preserve"><value>Version {0}.{1}.{2}</value></data>
   <data name="ReadFailed" xml:space="preserve"><value>Could not load data</value></data>
@@ -155,6 +161,23 @@
   <data name="PreviewSummaryFormat" xml:space="preserve"><value>{0} · {1} icons · {2} × {3} · DPI {4} · {5} monitor(s)</value></data>
   <data name="PreviewMonitorsFormat" xml:space="preserve"><value>Monitors: {0}</value></data>
   <data name="PreviewHint" xml:space="preserve"><value>Hover over an icon to see its name and coordinates</value></data>
+  <data name="PreviewEmptyText" xml:space="preserve"><value>This backup has no icon positions to display</value></data>
+  <data name="ComparisonCurrentLayout" xml:space="preserve"><value>Current desktop comparison snapshot</value></data>
+  <data name="ComparisonFailedFormat" xml:space="preserve"><value>Could not read the current desktop for comparison: {0}</value></data>
+  <data name="ComparisonSummaryFormat" xml:space="preserve"><value>Compared with now: {0} moved · {1} added · {2} missing · {3} unchanged</value></data>
+  <data name="DifferenceVirtualSize" xml:space="preserve"><value>virtual desktop size</value></data>
+  <data name="DifferenceDpi" xml:space="preserve"><value>DPI</value></data>
+  <data name="DifferenceMonitorCount" xml:space="preserve"><value>monitor count</value></data>
+  <data name="DifferenceMonitorLayout" xml:space="preserve"><value>monitor devices or arrangement</value></data>
+  <data name="EnvironmentMatches" xml:space="preserve"><value>The display environment matches this backup.</value></data>
+  <data name="EnvironmentDifferencesFormat" xml:space="preserve"><value>Display environment changed: {0}</value></data>
+  <data name="AmbiguousMatchesFormat" xml:space="preserve"><value>{0} duplicate-name icons were paired by Explorer order and may not be unique.</value></data>
+  <data name="NoDifferences" xml:space="preserve"><value>The current desktop has no icon differences from this backup</value></data>
+  <data name="DifferenceMovedTooltipFormat" xml:space="preserve"><value>{0}&#x0A;Current X {1} · Y {2} → backup X {3} · Y {4}</value></data>
+  <data name="DifferenceAddedTooltipFormat" xml:space="preserve"><value>{0}&#x0A;Added now · X {1} · Y {2}</value></data>
+  <data name="DifferenceMissingTooltipFormat" xml:space="preserve"><value>{0}&#x0A;Missing now · backup X {1} · Y {2}</value></data>
+  <data name="DifferenceUnchangedTooltipFormat" xml:space="preserve"><value>{0}&#x0A;Unchanged · X {1} · Y {2}</value></data>
+  <data name="AmbiguousTooltip" xml:space="preserve"><value>This item has duplicate names and was paired by occurrence order.</value></data>
   <data name="PreviewNoteFormat" xml:space="preserve"><value>Note: {0}</value></data>
   <data name="NoBackupsYet" xml:space="preserve"><value>No backups yet</value></data>
   <data name="WaitingFirstBackup" xml:space="preserve"><value>Waiting for the first backup</value></data>
