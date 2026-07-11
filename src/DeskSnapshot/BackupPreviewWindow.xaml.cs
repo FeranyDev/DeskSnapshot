@@ -13,6 +13,7 @@ public sealed partial class BackupPreviewWindow : Window
 {
     private const double IconSize = 20;
     private const double Inset = 14;
+    private const double FramePadding = 36;
     private readonly DesktopLayoutBackup _backup;
 
     public BackupPreviewWindow(DesktopLayoutBackup backup, Window owner)
@@ -30,11 +31,11 @@ public sealed partial class BackupPreviewWindow : Window
             // Mica 不可用时保留默认背景。
         }
 
-        ConfigureWindow(owner);
+        ConfigureWindow(owner, backup);
         PopulateHeader(backup);
     }
 
-    private void ConfigureWindow(Window owner)
+    private void ConfigureWindow(Window owner, DesktopLayoutBackup backup)
     {
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(this);
         var windowId = Win32Interop.GetWindowIdFromWindow(handle);
@@ -47,8 +48,25 @@ public sealed partial class BackupPreviewWindow : Window
         // display and cannot be placed behind it or on another desktop area.
         SetWindowLongPtr(handle, GwlpHwndParent, ownerHandle);
 
-        var width = (int)(workArea.Width * 0.80);
-        var height = (int)(workArea.Height * 0.80);
+        var desktopAspect = Math.Max(0.5, backup.Environment.VirtualWidth / (double)Math.Max(1, backup.Environment.VirtualHeight));
+        var dpiScale = Math.Max(1d, GetDpiForWindow(ownerHandle) / 96d);
+        var horizontalChrome = 110 * dpiScale;
+        var verticalChrome = (string.IsNullOrWhiteSpace(backup.Note) ? 155 : 180) * dpiScale;
+        var maxWindowWidth = workArea.Width * 0.90;
+        var maxWindowHeight = workArea.Height * 0.90;
+        var maxPreviewWidth = Math.Max(400, maxWindowWidth - horizontalChrome);
+        var maxPreviewHeight = Math.Max(300, maxWindowHeight - verticalChrome);
+
+        var previewWidth = maxPreviewWidth;
+        var previewHeight = previewWidth / desktopAspect;
+        if (previewHeight > maxPreviewHeight)
+        {
+            previewHeight = maxPreviewHeight;
+            previewWidth = previewHeight * desktopAspect;
+        }
+
+        var width = (int)Math.Ceiling(previewWidth + horizontalChrome);
+        var height = (int)Math.Ceiling(previewHeight + verticalChrome);
         var x = workArea.X + (workArea.Width - width) / 2;
         var y = workArea.Y + (workArea.Height - height) / 2;
         appWindow.MoveAndResize(new RectInt32(x, y, width, height));
@@ -66,6 +84,24 @@ public sealed partial class BackupPreviewWindow : Window
             BackupNoteText.Text = $"备注：{backup.Note}";
             BackupNoteText.Visibility = Visibility.Visible;
         }
+    }
+
+    private void PreviewHost_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var maxContentWidth = Math.Max(1, e.NewSize.Width - FramePadding);
+        var maxContentHeight = Math.Max(1, e.NewSize.Height - FramePadding);
+        var desktopAspect = Math.Max(0.5, _backup.Environment.VirtualWidth / (double)Math.Max(1, _backup.Environment.VirtualHeight));
+
+        var contentWidth = maxContentWidth;
+        var contentHeight = contentWidth / desktopAspect;
+        if (contentHeight > maxContentHeight)
+        {
+            contentHeight = maxContentHeight;
+            contentWidth = contentHeight * desktopAspect;
+        }
+
+        PreviewFrame.Width = contentWidth + FramePadding;
+        PreviewFrame.Height = contentHeight + FramePadding;
     }
 
     private void PreviewSurface_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -131,4 +167,7 @@ public sealed partial class BackupPreviewWindow : Window
 
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)]
     private static extern IntPtr SetWindowLongPtr(IntPtr window, int index, IntPtr newValue);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetDpiForWindow(IntPtr window);
 }

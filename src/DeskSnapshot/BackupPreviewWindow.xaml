@@ -23,32 +23,36 @@
             <Button Grid.Column="1" Content="关闭预览" Click="Close_Click" VerticalAlignment="Top" />
         </Grid>
 
-        <Border Grid.Row="2"
-                CornerRadius="16"
-                BorderThickness="1"
-                BorderBrush="#9664A5FF"
-                Background="#12253A"
-                Padding="18">
-            <Grid x:Name="PreviewSurface" SizeChanged="PreviewSurface_SizeChanged">
-                <Canvas x:Name="LayoutCanvas"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch" />
-                <TextBlock x:Name="EmptyPreviewText"
-                           Text="此备份没有可显示的图标位置"
-                           Foreground="White"
-                           FontSize="18"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Visibility="Collapsed" />
-                <Border HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
-                        Padding="12,6"
-                        Margin="10"
-                        CornerRadius="14"
-                        Background="#75000000">
-                    <TextBlock x:Name="PreviewHintText" Foreground="White" FontSize="12" />
-                </Border>
-            </Grid>
-        </Border>
+        <Grid x:Name="PreviewHost" Grid.Row="2" SizeChanged="PreviewHost_SizeChanged">
+            <Border x:Name="PreviewFrame"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    CornerRadius="16"
+                    BorderThickness="1"
+                    BorderBrush="#9664A5FF"
+                    Background="#12253A"
+                    Padding="18">
+                <Grid x:Name="PreviewSurface" SizeChanged="PreviewSurface_SizeChanged">
+                    <Canvas x:Name="LayoutCanvas"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch" />
+                    <TextBlock x:Name="EmptyPreviewText"
+                               Text="此备份没有可显示的图标位置"
+                               Foreground="White"
+                               FontSize="18"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="Collapsed" />
+                    <Border HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Padding="12,6"
+                            Margin="10"
+                            CornerRadius="14"
+                            Background="#75000000">
+                        <TextBlock x:Name="PreviewHintText" Foreground="White" FontSize="12" />
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
