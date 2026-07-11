@@ -40,6 +40,7 @@ public sealed partial class BackupPreviewWindow : Window
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(this);
         var windowId = Win32Interop.GetWindowIdFromWindow(handle);
         var appWindow = AppWindow.GetFromWindowId(windowId);
+        App.ApplyWindowIcon(appWindow);
         var ownerHandle = WinRT.Interop.WindowNative.GetWindowHandle(owner);
         var ownerWindowId = Win32Interop.GetWindowIdFromWindow(ownerHandle);
         var workArea = DisplayArea.GetFromWindowId(ownerWindowId, DisplayAreaFallback.Nearest).WorkArea;

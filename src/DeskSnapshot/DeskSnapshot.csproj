@@ -21,6 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\..\desksnapshot_pack\DeskSnapshot.ico"
+             Link="Assets\DeskSnapshot.ico"
+             CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\desksnapshot_pack\png\DeskSnapshot_96x96.png"
              Link="Assets\DeskSnapshot_96x96.png"
              CopyToOutputDirectory="PreserveNewest" />

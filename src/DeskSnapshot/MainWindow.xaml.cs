@@ -54,6 +54,7 @@ public sealed partial class MainWindow : Window
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(this);
         var windowId = Win32Interop.GetWindowIdFromWindow(handle);
         var appWindow = AppWindow.GetFromWindowId(windowId);
+        App.ApplyWindowIcon(appWindow);
         appWindow.Resize(new SizeInt32(1180, 760));
     }
 

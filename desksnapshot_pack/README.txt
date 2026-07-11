@@ -1,12 +1,13 @@
-DeskSnapshot 图标包
+DeskSnapshot 图标修正版
 
-内容：
-- DeskSnapshot.svg            矢量版图标
-- DeskSnapshot.ico            Windows 多尺寸 ICO
-- png/                        多分辨率 PNG
-  - 16x16, 20x20, 24x24, 32x32, 40x40, 48x48, 64x64, 72x72, 96x96, 128x128, 256x256, 512x512, 1024x1024
-  - 1254x1254 原始透明 PNG
+1. DeskSnapshot_vector.svg
+   - 纯矢量、可编辑。
+   - 刷新箭头不再用标准圆弧拼接，而是直接按原始 PNG 的轮廓追踪。
+   - 箭尾位置、圆弧比例、箭头连接处、箭头尖角度均来自原图。
 
-说明：
-- PNG 与 ICO 基于当前确认的图标样式导出。
-- SVG 为按当前图标风格重绘的矢量版本，便于继续编辑、放大或导入设计工具。
+2. DeskSnapshot_pixel-perfect.svg
+   - 视觉上与原始 PNG 完全一致。
+   - 为自包含 SVG，但内部嵌入了 PNG，因此不是纯矢量。
+
+3. DeskSnapshot.ico / png/
+   - 直接从原始确认版 PNG 导出，适合 Windows 程序使用。

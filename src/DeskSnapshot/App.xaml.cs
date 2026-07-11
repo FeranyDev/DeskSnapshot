@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Windowing;
 
 namespace DeskSnapshot;
 
@@ -43,6 +44,26 @@ public partial class App : Application
         catch
         {
             // 诊断日志不得影响应用启动。
+        }
+    }
+
+    internal static void ApplyWindowIcon(AppWindow appWindow)
+    {
+        try
+        {
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "DeskSnapshot.ico");
+            if (File.Exists(iconPath))
+            {
+                appWindow.SetIcon(iconPath);
+            }
+            else
+            {
+                Log($"Window icon not found: {iconPath}");
+            }
+        }
+        catch (Exception exception)
+        {
+            Log($"Unable to apply window icon: {exception.Message}");
         }
     }
 
