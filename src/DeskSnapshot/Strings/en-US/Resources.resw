@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="AppSubtitle.Text" xml:space="preserve"><value>Desktop layout backup</value></data>
+  <data name="NavDashboard.Content" xml:space="preserve"><value>Overview</value></data>
+  <data name="NavBackups.Content" xml:space="preserve"><value>Backups</value></data>
+  <data name="NavSettings.Content" xml:space="preserve"><value>Settings</value></data>
+  <data name="NavAbout.Content" xml:space="preserve"><value>About</value></data>
+  <data name="DashboardTitle.Text" xml:space="preserve"><value>Desktop overview</value></data>
+  <data name="DashboardSubtitle.Text" xml:space="preserve"><value>Save icon positions and restore them anytime.</value></data>
+  <data name="CreateBackupButton.Text" xml:space="preserve"><value>Back up now</value></data>
+  <data name="HeroTitle.Text" xml:space="preserve"><value>Your desktop is ready</value></data>
+  <data name="HeroEnvironmentInitial.Text" xml:space="preserve"><value>Reading display environment…</value></data>
+  <data name="HeroIconInitial.Text" xml:space="preserve"><value>Waiting for the first backup</value></data>
+  <data name="HistoryLabel.Text" xml:space="preserve"><value>Backups</value></data>
+  <data name="MonitorsLabel.Text" xml:space="preserve"><value>Monitors</value></data>
+  <data name="LastBackupInitial.Text" xml:space="preserve"><value>No backups yet</value></data>
+  <data name="LastSavedLabel.Text" xml:space="preserve"><value>Last saved</value></data>
+  <data name="ProtectionTitle.Text" xml:space="preserve"><value>Restore protection is on</value></data>
+  <data name="ProtectionDescription.Text" xml:space="preserve"><value>The current layout is saved before every restore.</value></data>
+  <data name="ViewAllBackups.Content" xml:space="preserve"><value>View backups</value></data>
+  <data name="BackupsTitle.Text" xml:space="preserve"><value>Backups</value></data>
+  <data name="BackupsSubtitle.Text" xml:space="preserve"><value>See when and why each backup was created.</value></data>
+  <data name="NewBackupButton.Text" xml:space="preserve"><value>New backup</value></data>
+  <data name="EmptyBackups.Text" xml:space="preserve"><value>No backups yet. Select “New backup” to save this desktop.</value></data>
+  <data name="SelectionHint.Text" xml:space="preserve"><value>Select a backup to preview, restore, or delete</value></data>
+  <data name="DeleteBackup.Content" xml:space="preserve"><value>Delete</value></data>
+  <data name="ViewBackup.Content" xml:space="preserve"><value>View</value></data>
+  <data name="RestoreBackupButton.Text" xml:space="preserve"><value>Restore layout</value></data>
+  <data name="SettingsTitle.Text" xml:space="preserve"><value>Settings</value></data>
+  <data name="SettingsSubtitle.Text" xml:space="preserve"><value>Configure backups, startup, and appearance.</value></data>
+  <data name="AutoBackupTitle.Text" xml:space="preserve"><value>Automatic backup</value></data>
+  <data name="AutoBackupInitial.Text" xml:space="preserve"><value>Automatic backup is off</value></data>
+  <data name="AutoBackupToggle.OffContent" xml:space="preserve"><value>Off</value></data>
+  <data name="AutoBackupToggle.OnContent" xml:space="preserve"><value>On</value></data>
+  <data name="ScheduledTitle.Text" xml:space="preserve"><value>Scheduled backup</value></data>
+  <data name="ScheduledDescription.Text" xml:space="preserve"><value>Save the layout at a fixed interval.</value></data>
+  <data name="IntervalLabel.Text" xml:space="preserve"><value>Interval</value></data>
+  <data name="Interval5.Content" xml:space="preserve"><value>Every 5 minutes</value></data>
+  <data name="Interval15.Content" xml:space="preserve"><value>Every 15 minutes</value></data>
+  <data name="Interval30.Content" xml:space="preserve"><value>Every 30 minutes</value></data>
+  <data name="Interval60.Content" xml:space="preserve"><value>Every hour</value></data>
+  <data name="Interval180.Content" xml:space="preserve"><value>Every 3 hours</value></data>
+  <data name="EventTriggersTitle.Text" xml:space="preserve"><value>Event triggers</value></data>
+  <data name="EventTriggersDescription.Text" xml:space="preserve"><value>Changes must stabilize before a backup is created.</value></data>
+  <data name="StartupTrigger.Content" xml:space="preserve"><value>App launch</value></data>
+  <data name="DisplayTrigger.Content" xml:space="preserve"><value>Monitor, resolution, or DPI change</value></data>
+  <data name="DesktopTrigger.Content" xml:space="preserve"><value>Desktop icon or position change</value></data>
+  <data name="RetentionLabel.Text" xml:space="preserve"><value>Automatic backup limit</value></data>
+  <data name="RetentionText.Text" xml:space="preserve"><value>Keep 1–200; the oldest automatic backups are removed first.</value></data>
+  <data name="BackgroundTitle.Text" xml:space="preserve"><value>Startup and background</value></data>
+  <data name="BackgroundInitial.Text" xml:space="preserve"><value>Optionally start with Windows or run in the notification area.</value></data>
+  <data name="RunAtStartupTitle.Text" xml:space="preserve"><value>Start with Windows</value></data>
+  <data name="RunAtStartupDescription.Text" xml:space="preserve"><value>Start when the current Windows user signs in.</value></data>
+  <data name="TrayModeTitle.Text" xml:space="preserve"><value>Keep running after the window closes</value></data>
+  <data name="TrayModeDescription.Text" xml:space="preserve"><value>Automatic backups continue; reopen or quit from the tray.</value></data>
+  <data name="ThemeTitle.Text" xml:space="preserve"><value>Theme</value></data>
+  <data name="ThemeDescription.Text" xml:space="preserve"><value>Choose the app color mode.</value></data>
+  <data name="ThemeSystem.Content" xml:space="preserve"><value>Use system setting</value></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value>Light</value></data>
+  <data name="ThemeDark.Content" xml:space="preserve"><value>Dark</value></data>
+  <data name="LanguageTitle.Text" xml:space="preserve"><value>Display language</value></data>
+  <data name="LanguageDescription.Text" xml:space="preserve"><value>The app restarts after a change.</value></data>
+  <data name="LanguageSystem.Content" xml:space="preserve"><value>Use system setting</value></data>
+  <data name="LanguageChinese.Content" xml:space="preserve"><value>简体中文</value></data>
+  <data name="LanguageEnglish.Content" xml:space="preserve"><value>English</value></data>
+  <data name="SafetyBackupTitle.Text" xml:space="preserve"><value>Pre-restore backup</value></data>
+  <data name="SafetyBackupDescription.Text" xml:space="preserve"><value>Always on, so an accidental restore can be undone.</value></data>
+  <data name="AboutTitle.Text" xml:space="preserve"><value>About</value></data>
+  <data name="AboutSubtitle.Text" xml:space="preserve"><value>Version, data, and privacy information.</value></data>
+  <data name="AboutTagline.Text" xml:space="preserve"><value>A lightweight, offline desktop icon layout backup tool</value></data>
+  <data name="VersionInitial.Text" xml:space="preserve"><value>Version 1.0.0</value></data>
+  <data name="LocalStorageTitle.Text" xml:space="preserve"><value>Local, offline storage</value></data>
+  <data name="LocalStorageDescription.Text" xml:space="preserve"><value>Layouts and settings stay on this PC and are never uploaded.</value></data>
+  <data name="BackupDataLocation.Text" xml:space="preserve"><value>Backup data location</value></data>
+  <data name="SafeWriteTitle.Text" xml:space="preserve"><value>Safe writes</value></data>
+  <data name="SafeWriteDescription.Text" xml:space="preserve"><value>Atomic JSON writes; damaged files are isolated automatically.</value></data>
+  <data name="RecoveryProtectionTitle.Text" xml:space="preserve"><value>Restore protection</value></data>
+  <data name="RecoveryProtectionDescription.Text" xml:space="preserve"><value>The current desktop is saved before a restore.</value></data>
+  <data name="TechnicalInfoTitle.Text" xml:space="preserve"><value>Compatibility</value></data>
+  <data name="TechnicalInfoStack.Text" xml:space="preserve"><value>Windows 10/11 · x64</value></data>
+  <data name="TechnicalInfoDemo.Text" xml:space="preserve"><value>Supports the standard desktop managed by Windows Explorer.</value></data>
+  <data name="BusyInitial.Text" xml:space="preserve"><value>Processing desktop layout…</value></data>
+  <data name="PreviewRestoreButton.Text" xml:space="preserve"><value>Restore layout</value></data>
+  <data name="PreviewEmpty.Text" xml:space="preserve"><value>This backup has no icon positions to display</value></data>
+  <data name="WindowTitle" xml:space="preserve"><value>DeskSnapshot - Desktop layout backup</value></data>
+  <data name="VersionFormat" xml:space="preserve"><value>Version {0}.{1}.{2}</value></data>
+  <data name="ReadFailed" xml:space="preserve"><value>Could not load data</value></data>
+  <data name="MonitorCountFormat" xml:space="preserve"><value>{0} monitor(s)</value></data>
+  <data name="LatestIconCountFormat" xml:space="preserve"><value>Latest: {0} icons</value></data>
+  <data name="TodayDateFormat" xml:space="preserve"><value>Today · {0}</value></data>
+  <data name="YesterdayDateFormat" xml:space="preserve"><value>Yesterday · {0}</value></data>
+  <data name="RecordCountFormat" xml:space="preserve"><value>{0} record(s)</value></data>
+  <data name="IconCountFormat" xml:space="preserve"><value>{0} icons</value></data>
+  <data name="ManualBackup" xml:space="preserve"><value>Manual backup</value></data>
+  <data name="AutomaticBackup" xml:space="preserve"><value>Automatic backup</value></data>
+  <data name="SafetyBackup" xml:space="preserve"><value>Pre-restore backup</value></data>
+  <data name="AutomaticReasonFormat" xml:space="preserve"><value>Triggered by “{0}”</value></data>
+  <data name="SafetySummary" xml:space="preserve"><value>Saved the desktop before a restore</value></data>
+  <data name="SafetySummaryNamed" xml:space="preserve"><value>Saved the desktop before restoring “{0}”</value></data>
+  <data name="ReasonDesktopChange" xml:space="preserve"><value>icon layout change</value></data>
+  <data name="ReasonDisplayChange" xml:space="preserve"><value>display environment change</value></data>
+  <data name="ReasonStartup" xml:space="preserve"><value>app launch</value></data>
+  <data name="ReasonSchedule" xml:space="preserve"><value>schedule</value></data>
+  <data name="ReasonRule" xml:space="preserve"><value>automatic backup rule</value></data>
+  <data name="BackupNameHeader" xml:space="preserve"><value>Backup name</value></data>
+  <data name="BackupNoteHeader" xml:space="preserve"><value>Note (optional)</value></data>
+  <data name="BackupNotePlaceholder" xml:space="preserve"><value>For example: dual-monitor layout</value></data>
+  <data name="DesktopLayoutNameFormat" xml:space="preserve"><value>Desktop layout {0}</value></data>
+  <data name="SaveLayoutTitle" xml:space="preserve"><value>Save current desktop layout</value></data>
+  <data name="CreateBackup" xml:space="preserve"><value>Create backup</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="ReadingIcons" xml:space="preserve"><value>Reading desktop icons…</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>Backup complete</value></data>
+  <data name="BackupCompletedMessage" xml:space="preserve"><value>Saved {0} desktop icons.</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Backup failed</value></data>
+  <data name="RestoreTitle" xml:space="preserve"><value>Restore desktop layout?</value></data>
+  <data name="RestoreConfirm" xml:space="preserve"><value>“{0}” will be restored. The current layout is saved first.</value></data>
+  <data name="RestoreFollowMonitors" xml:space="preserve"><value>Follow monitor positions</value></data>
+  <data name="RestoreFollowMonitorsDescription" xml:space="preserve"><value>Keep icons on the same monitors and at the same relative positions when the monitor arrangement changes.</value></data>
+  <data name="Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="CreatingSafetyBackup" xml:space="preserve"><value>Creating pre-restore backup…</value></data>
+  <data name="RestoringIcons" xml:space="preserve"><value>Restoring icon positions…</value></data>
+  <data name="RestoreCompleted" xml:space="preserve"><value>Restore complete</value></data>
+  <data name="RestoreResult" xml:space="preserve"><value>Restored {0} icons, skipped {1}, failed {2}.</value></data>
+  <data name="RestoreResultMapped" xml:space="preserve"><value>Restored {0} icons, skipped {1}, failed {2}; {3} followed their monitors.</value></data>
+  <data name="RestoreFailed" xml:space="preserve"><value>Restore failed</value></data>
+  <data name="DeleteTitle" xml:space="preserve"><value>Delete this backup?</value></data>
+  <data name="DeleteConfirm" xml:space="preserve"><value>“{0}” will be permanently deleted from this PC.</value></data>
+  <data name="DeleteMultipleTitle" xml:space="preserve"><value>Delete selected backups?</value></data>
+  <data name="DeleteMultipleConfirm" xml:space="preserve"><value>The {0} selected backups will be permanently deleted. Unselected child backups will be kept.</value></data>
+  <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>Backup deleted</value></data>
+  <data name="BackupDeletedMessage" xml:space="preserve"><value>Local records were updated.</value></data>
+  <data name="BackupsDeletedMessage" xml:space="preserve"><value>Deleted {0} backups. Local records were updated.</value></data>
+  <data name="SelectedFormat" xml:space="preserve"><value>Selected: {0}</value></data>
+  <data name="SelectedCountFormat" xml:space="preserve"><value>{0} backups selected; batch delete is available</value></data>
+  <data name="RestartingLanguage" xml:space="preserve"><value>Switching language…</value></data>
+  <data name="BackgroundSettingsFailed" xml:space="preserve"><value>Background setting failed</value></data>
+  <data name="AutoBackupOff" xml:space="preserve"><value>Automatic backup is off</value></data>
+  <data name="EveryMinutesFormat" xml:space="preserve"><value>Every {0} minutes</value></data>
+  <data name="AutoNoTrigger" xml:space="preserve"><value>Automatic backup is on with no trigger selected</value></data>
+  <data name="EnabledModesFormat" xml:space="preserve"><value>Enabled: {0}</value></data>
+  <data name="AutoBackupFailedFormat" xml:space="preserve"><value>Automatic backup check failed: {0}</value></data>
+  <data name="LastAutoBackupFormat" xml:space="preserve"><value>Last automatic backup: {0} ({1})</value></data>
+  <data name="TrayRunningTitle" xml:space="preserve"><value>DeskSnapshot is running in the background</value></data>
+  <data name="TrayRunningMessage" xml:space="preserve"><value>Automatic backups continue. Double-click the tray icon to reopen.</value></data>
+  <data name="TrayBusy" xml:space="preserve"><value>Another backup is in progress. Try again shortly.</value></data>
+  <data name="TrayBackupNameFormat" xml:space="preserve"><value>Tray backup {0}</value></data>
+  <data name="TrayBackupNote" xml:space="preserve"><value>Created manually from the notification area</value></data>
+  <data name="PreviewTitleFormat" xml:space="preserve"><value>{0} - Layout preview</value></data>
+  <data name="PreviewSummaryFormat" xml:space="preserve"><value>{0} · {1} icons · {2} × {3} · DPI {4} · {5} monitor(s)</value></data>
+  <data name="PreviewMonitorsFormat" xml:space="preserve"><value>Monitors: {0}</value></data>
+  <data name="PreviewHint" xml:space="preserve"><value>Hover over an icon to see its name and coordinates</value></data>
+  <data name="PreviewNoteFormat" xml:space="preserve"><value>Note: {0}</value></data>
+  <data name="NoBackupsYet" xml:space="preserve"><value>No backups yet</value></data>
+  <data name="WaitingFirstBackup" xml:space="preserve"><value>Waiting for the first backup</value></data>
+  <data name="SelectionHintDynamic" xml:space="preserve"><value>Select a backup to preview, restore, or delete</value></data>
+  <data name="BusyText" xml:space="preserve"><value>Processing desktop layout…</value></data>
+  <data name="RunAtStartupEnabled" xml:space="preserve"><value>Starts with Windows</value></data>
+  <data name="TrayModeEnabled" xml:space="preserve"><value>Background mode enabled</value></data>
+  <data name="BackgroundModeOff" xml:space="preserve"><value>Optionally start with Windows or run in the notification area.</value></data>
+  <data name="TrayUnavailable" xml:space="preserve"><value>The notification area icon is unavailable on this system.</value></data>
+  <data name="StartupRequestDenied" xml:space="preserve"><value>Windows did not allow startup. Change it under Settings > Apps > Startup.</value></data>
+  <data name="StartupRegistryUnavailable" xml:space="preserve"><value>Could not open the current user's startup settings.</value></data>
+  <data name="ExecutablePathUnavailable" xml:space="preserve"><value>Could not determine the DeskSnapshot executable path.</value></data>
+  <data name="TrayIconLoadFailed" xml:space="preserve"><value>Could not load the notification area icon.</value></data>
+  <data name="TrayMessageHookFailed" xml:space="preserve"><value>Could not connect notification area messages.</value></data>
+  <data name="TrayIconCreateFailed" xml:space="preserve"><value>Could not create the notification area icon.</value></data>
+  <data name="TrayIconRemoveFailed" xml:space="preserve"><value>Could not remove the notification area icon.</value></data>
+  <data name="TrayOpen" xml:space="preserve"><value>Open DeskSnapshot</value></data>
+  <data name="TrayBackupNow" xml:space="preserve"><value>Back up now</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>Exit</value></data>
+  <data name="AppDisplayName" xml:space="preserve"><value>DeskSnapshot</value></data>
+  <data name="PublisherDisplayName" xml:space="preserve"><value>FeranyDev</value></data>
+  <data name="AppDescription" xml:space="preserve"><value>Local desktop icon layout backup and restore</value></data>
+  <data name="UnnamedIconFormat" xml:space="preserve"><value>Unnamed icon #{0}</value></data>
+  <data name="ExplorerDesktopNotFound" xml:space="preserve"><value>Could not find the Windows Explorer desktop. Make sure Explorer is running.</value></data>
+  <data name="DesktopIconListNotFound" xml:space="preserve"><value>Could not find the desktop icon list. This desktop shell may not be supported.</value></data>
+  <data name="ExplorerNotResponding" xml:space="preserve"><value>Windows Explorer did not respond to the desktop layout request.</value></data>
+  <data name="ExplorerProcessUnavailable" xml:space="preserve"><value>Could not access the Windows Explorer process.</value></data>
+  <data name="LayoutBufferAllocationFailed" xml:space="preserve"><value>Could not allocate the desktop layout buffer.</value></data>
+  <data name="LayoutBufferWriteFailed" xml:space="preserve"><value>Could not write to the desktop layout buffer.</value></data>
+  <data name="LayoutBufferReadFailed" xml:space="preserve"><value>Could not read the desktop layout buffer.</value></data>
+</root>

@@ -22,10 +22,7 @@ public sealed class BackupStore
             return;
         }
 
-        var folder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "DeskSnapshot");
-        Directory.CreateDirectory(folder);
+        var folder = AppDataPathService.GetLocalDataFolder();
         _filePath = Path.Combine(folder, "backups.json");
     }
 

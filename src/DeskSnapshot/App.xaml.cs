@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Windowing;
+using DeskSnapshot.Services;
 
 namespace DeskSnapshot;
 
@@ -12,6 +13,10 @@ public partial class App : Application
     {
         ResetLog();
         Log("App constructor: begin");
+        var uiLanguage = SettingsStore.ReadUiLanguage();
+        Log($"App constructor: language preference={uiLanguage}");
+        LocalizationService.ApplyLanguage(uiLanguage);
+        Log("App constructor: language applied");
         AppDomain.CurrentDomain.UnhandledException += (_, args) => Log($"AppDomain unhandled: {args.ExceptionObject}");
         UnhandledException += (_, args) => Log($"XAML unhandled: {args.Exception}");
         InitializeComponent();

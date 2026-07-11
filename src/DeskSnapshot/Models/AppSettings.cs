@@ -9,4 +9,7 @@ public sealed class AppSettings
     public bool BackupOnDisplayChange { get; set; } = true;
     public bool BackupOnDesktopChange { get; set; }
     public int AutomaticBackupRetention { get; set; } = 20;
+    public bool RunAtStartup { get; set; }
+    public bool MinimizeToTray { get; set; }
+    public string UiLanguage { get; set; } = "system";
 }

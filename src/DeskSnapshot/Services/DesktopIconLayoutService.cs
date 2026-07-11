@@ -22,6 +22,13 @@ public sealed class DesktopIconLayoutService
     private const uint MemRelease = 0x8000;
     private const uint PageReadWrite = 0x04;
     private const uint SmtoAbortIfHung = 0x0002;
+    private const uint MonitorInfoPrimary = 0x00000001;
+    private const uint EddGetDeviceInterfaceName = 0x00000001;
+    private const uint QdcOnlyActivePaths = 0x00000002;
+    private const uint DisplayConfigGetSourceName = 1;
+    private const uint DisplayConfigGetTargetName = 2;
+    private const int ErrorSuccess = 0;
+    private const int ErrorInsufficientBuffer = 122;
     private const int TextCapacity = 1024;
 
     public DesktopLayoutBackup Capture(string name, string note = "", bool isSafetyBackup = false)
@@ -30,6 +37,7 @@ public sealed class DesktopIconLayoutService
         using var remote = RemoteListViewMemory.Open(listView);
         var count = SendListViewMessage(listView, LvmGetItemCount, 0, IntPtr.Zero).ToInt32();
         var icons = new List<DesktopIconPosition>(Math.Max(0, count));
+        var environment = ReadEnvironment();
 
         for (var index = 0; index < count; index++)
         {
@@ -39,13 +47,17 @@ public sealed class DesktopIconLayoutService
 
             SendListViewMessage(listView, LvmGetItemPosition, index, remote.PointAddress);
             var point = remote.ReadPoint();
+            var monitor = FindMonitorForPoint(environment, point.X, point.Y);
 
             icons.Add(new DesktopIconPosition
             {
-                Name = string.IsNullOrWhiteSpace(iconName) ? $"未命名图标 #{index + 1}" : iconName,
+                Name = string.IsNullOrWhiteSpace(iconName) ? LocalizationService.Format("UnnamedIconFormat", index + 1) : iconName,
                 X = point.X,
                 Y = point.Y,
-                CaptureOrder = index
+                CaptureOrder = index,
+                MonitorId = monitor?.Id ?? string.Empty,
+                MonitorOffsetX = monitor is null ? 0 : point.X - (monitor.Left - environment.VirtualLeft),
+                MonitorOffsetY = monitor is null ? 0 : point.Y - (monitor.Top - environment.VirtualTop)
             });
         }
 
@@ -54,12 +66,13 @@ public sealed class DesktopIconLayoutService
             Name = name,
             Note = note,
             IsSafetyBackup = isSafetyBackup,
-            Environment = ReadEnvironment(),
+            SchemaVersion = 2,
+            Environment = environment,
             Icons = icons
         };
     }
 
-    public RestoreResult Restore(DesktopLayoutBackup backup)
+    public RestoreResult Restore(DesktopLayoutBackup backup, bool followMonitorPositions = false)
     {
         var listView = FindDesktopListView();
         using var remote = RemoteListViewMemory.Open(listView);
@@ -84,6 +97,8 @@ public sealed class DesktopIconLayoutService
         var restored = 0;
         var missing = 0;
         var failed = 0;
+        var remapped = 0;
+        var currentEnvironment = followMonitorPositions ? ReadEnvironment() : null;
 
         foreach (var icon in backup.Icons.OrderBy(icon => icon.CaptureOrder))
         {
@@ -93,7 +108,14 @@ public sealed class DesktopIconLayoutService
                 continue;
             }
 
-            remote.WritePoint(new NativePoint { X = icon.X, Y = icon.Y });
+            var targetPoint = new NativePoint { X = icon.X, Y = icon.Y };
+            if (currentEnvironment is not null && TryMapToCurrentMonitor(backup, icon, currentEnvironment, out var mappedPoint))
+            {
+                targetPoint = mappedPoint;
+                remapped++;
+            }
+
+            remote.WritePoint(targetPoint);
             var result = SendListViewMessage(listView, LvmSetItemPosition32, indexes.Dequeue(), remote.PointAddress);
             if (result == IntPtr.Zero)
             {
@@ -105,18 +127,221 @@ public sealed class DesktopIconLayoutService
             }
         }
 
-        return new RestoreResult(restored, missing, failed);
+        return new RestoreResult(restored, missing, failed, remapped);
     }
 
-    public DesktopEnvironment ReadEnvironment() => new()
+    public DesktopEnvironment ReadEnvironment()
     {
-        VirtualLeft = GetSystemMetrics(76),
-        VirtualTop = GetSystemMetrics(77),
-        VirtualWidth = GetSystemMetrics(78),
-        VirtualHeight = GetSystemMetrics(79),
-        MonitorCount = GetSystemMetrics(80),
-        Dpi = GetDpiForSystem()
-    };
+        var environment = new DesktopEnvironment
+        {
+            VirtualLeft = GetSystemMetrics(76),
+            VirtualTop = GetSystemMetrics(77),
+            VirtualWidth = GetSystemMetrics(78),
+            VirtualHeight = GetSystemMetrics(79),
+            MonitorCount = GetSystemMetrics(80),
+            Dpi = GetDpiForSystem()
+        };
+        var displayConfigIdentities = ReadDisplayConfigIdentities();
+
+        EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, (monitorHandle, _, _, _) =>
+        {
+            var info = new NativeMonitorInfo
+            {
+                Size = Marshal.SizeOf<NativeMonitorInfo>(),
+                DeviceName = string.Empty
+            };
+            if (!GetMonitorInfo(monitorHandle, ref info))
+            {
+                return true;
+            }
+
+            var displayDevice = new NativeDisplayDevice
+            {
+                Size = Marshal.SizeOf<NativeDisplayDevice>(),
+                DeviceName = string.Empty,
+                DeviceString = string.Empty,
+                DeviceId = string.Empty,
+                DeviceKey = string.Empty
+            };
+            var hasDisplayDevice = EnumDisplayDevices(info.DeviceName, 0, ref displayDevice, EddGetDeviceInterfaceName);
+            displayConfigIdentities.TryGetValue(info.DeviceName, out var displayConfigIdentity);
+            var friendlyName = !string.IsNullOrWhiteSpace(displayConfigIdentity.FriendlyName)
+                ? displayConfigIdentity.FriendlyName
+                : hasDisplayDevice && !string.IsNullOrWhiteSpace(displayDevice.DeviceString)
+                ? displayDevice.DeviceString
+                : info.DeviceName;
+            var stableId = !string.IsNullOrWhiteSpace(displayConfigIdentity.DevicePath)
+                ? displayConfigIdentity.DevicePath
+                : hasDisplayDevice && !string.IsNullOrWhiteSpace(displayDevice.DeviceId)
+                ? displayDevice.DeviceId
+                : info.DeviceName;
+
+            environment.Monitors.Add(new DesktopMonitor
+            {
+                Id = stableId,
+                DeviceName = info.DeviceName,
+                Name = friendlyName,
+                Left = info.Monitor.Left,
+                Top = info.Monitor.Top,
+                Width = info.Monitor.Right - info.Monitor.Left,
+                Height = info.Monitor.Bottom - info.Monitor.Top,
+                IsPrimary = (info.Flags & MonitorInfoPrimary) != 0
+            });
+            return true;
+        }, IntPtr.Zero);
+
+        environment.MonitorCount = environment.Monitors.Count > 0
+            ? environment.Monitors.Count
+            : environment.MonitorCount;
+        return environment;
+    }
+
+    private static Dictionary<string, DisplayConfigIdentity> ReadDisplayConfigIdentities()
+    {
+        var identities = new Dictionary<string, DisplayConfigIdentity>(StringComparer.OrdinalIgnoreCase);
+        for (var attempt = 0; attempt < 3; attempt++)
+        {
+            var result = GetDisplayConfigBufferSizes(QdcOnlyActivePaths, out var pathCount, out var modeCount);
+            if (result != ErrorSuccess)
+            {
+                return identities;
+            }
+
+            var paths = new NativeDisplayConfigPathInfo[pathCount];
+            var modes = new NativeDisplayConfigModeInfo[modeCount];
+            result = QueryDisplayConfig(
+                QdcOnlyActivePaths,
+                ref pathCount,
+                paths,
+                ref modeCount,
+                modes,
+                IntPtr.Zero);
+            if (result == ErrorInsufficientBuffer)
+            {
+                continue;
+            }
+            if (result != ErrorSuccess)
+            {
+                return identities;
+            }
+
+            for (var index = 0; index < pathCount; index++)
+            {
+                var path = paths[index];
+                var sourceName = new NativeDisplayConfigSourceDeviceName
+                {
+                    Header = new NativeDisplayConfigDeviceInfoHeader
+                    {
+                        Type = DisplayConfigGetSourceName,
+                        Size = (uint)Marshal.SizeOf<NativeDisplayConfigSourceDeviceName>(),
+                        AdapterId = path.SourceInfo.AdapterId,
+                        Id = path.SourceInfo.Id
+                    },
+                    ViewGdiDeviceName = string.Empty
+                };
+                var targetName = new NativeDisplayConfigTargetDeviceName
+                {
+                    Header = new NativeDisplayConfigDeviceInfoHeader
+                    {
+                        Type = DisplayConfigGetTargetName,
+                        Size = (uint)Marshal.SizeOf<NativeDisplayConfigTargetDeviceName>(),
+                        AdapterId = path.TargetInfo.AdapterId,
+                        Id = path.TargetInfo.Id
+                    },
+                    MonitorFriendlyDeviceName = string.Empty,
+                    MonitorDevicePath = string.Empty
+                };
+
+                if (DisplayConfigGetDeviceInfo(ref sourceName) != ErrorSuccess ||
+                    DisplayConfigGetDeviceInfo(ref targetName) != ErrorSuccess ||
+                    string.IsNullOrWhiteSpace(sourceName.ViewGdiDeviceName))
+                {
+                    continue;
+                }
+
+                identities[sourceName.ViewGdiDeviceName] = new DisplayConfigIdentity(
+                    targetName.MonitorFriendlyDeviceName,
+                    targetName.MonitorDevicePath);
+            }
+
+            return identities;
+        }
+
+        return identities;
+    }
+
+    private static DesktopMonitor? FindMonitorForPoint(DesktopEnvironment environment, int x, int y)
+    {
+        var containing = environment.Monitors.FirstOrDefault(monitor =>
+        {
+            var left = monitor.Left - environment.VirtualLeft;
+            var top = monitor.Top - environment.VirtualTop;
+            return x >= left && x < left + monitor.Width && y >= top && y < top + monitor.Height;
+        });
+        if (containing is not null)
+        {
+            return containing;
+        }
+
+        return environment.Monitors.OrderBy(monitor =>
+        {
+            var left = monitor.Left - environment.VirtualLeft;
+            var top = monitor.Top - environment.VirtualTop;
+            var nearestX = Math.Clamp(x, left, left + Math.Max(0, monitor.Width - 1));
+            var nearestY = Math.Clamp(y, top, top + Math.Max(0, monitor.Height - 1));
+            return Math.Pow(x - nearestX, 2) + Math.Pow(y - nearestY, 2);
+        }).FirstOrDefault();
+    }
+
+    private static bool TryMapToCurrentMonitor(
+        DesktopLayoutBackup backup,
+        DesktopIconPosition icon,
+        DesktopEnvironment currentEnvironment,
+        out NativePoint point)
+    {
+        point = default;
+        if (string.IsNullOrWhiteSpace(icon.MonitorId) || backup.Environment.Monitors.Count == 0)
+        {
+            return false;
+        }
+
+        var sourceMonitor = backup.Environment.Monitors.FirstOrDefault(monitor =>
+            string.Equals(monitor.Id, icon.MonitorId, StringComparison.OrdinalIgnoreCase));
+        if (sourceMonitor is null)
+        {
+            return false;
+        }
+
+        var currentMonitor = currentEnvironment.Monitors.FirstOrDefault(monitor =>
+            string.Equals(monitor.Id, sourceMonitor.Id, StringComparison.OrdinalIgnoreCase));
+        currentMonitor ??= currentEnvironment.Monitors.FirstOrDefault(monitor =>
+            string.Equals(monitor.DeviceName, sourceMonitor.DeviceName, StringComparison.OrdinalIgnoreCase));
+        if (currentMonitor is null)
+        {
+            var sameName = currentEnvironment.Monitors
+                .Where(monitor => string.Equals(monitor.Name, sourceMonitor.Name, StringComparison.OrdinalIgnoreCase))
+                .Take(2)
+                .ToList();
+            if (sameName.Count == 1)
+            {
+                currentMonitor = sameName[0];
+            }
+        }
+
+        if (currentMonitor is null)
+        {
+            return false;
+        }
+
+        var offsetX = Math.Clamp(icon.MonitorOffsetX, 0, Math.Max(0, currentMonitor.Width - 1));
+        var offsetY = Math.Clamp(icon.MonitorOffsetY, 0, Math.Max(0, currentMonitor.Height - 1));
+        point = new NativePoint
+        {
+            X = currentMonitor.Left - currentEnvironment.VirtualLeft + offsetX,
+            Y = currentMonitor.Top - currentEnvironment.VirtualTop + offsetY
+        };
+        return true;
+    }
 
     private static string DecodeRemoteText(byte[] bytes)
     {
@@ -156,13 +381,13 @@ public sealed class DesktopIconLayoutService
 
         if (defView == IntPtr.Zero)
         {
-            throw new InvalidOperationException("无法找到 Windows Explorer 桌面视图。请确认 Explorer 正在运行。");
+            throw new InvalidOperationException(LocalizationService.Get("ExplorerDesktopNotFound"));
         }
 
         var listView = FindWindowEx(defView, IntPtr.Zero, "SysListView32", "FolderView");
         if (listView == IntPtr.Zero)
         {
-            throw new InvalidOperationException("无法找到桌面图标列表。当前桌面外壳可能不受支持。");
+            throw new InvalidOperationException(LocalizationService.Get("DesktopIconListNotFound"));
         }
 
         return listView;
@@ -181,7 +406,7 @@ public sealed class DesktopIconLayoutService
 
         if (succeeded == IntPtr.Zero)
         {
-            throw new Win32Exception(Marshal.GetLastWin32Error(), "Windows Explorer 未响应桌面布局请求。");
+            throw new Win32Exception(Marshal.GetLastWin32Error(), LocalizationService.Get("ExplorerNotResponding"));
         }
 
         return result;
@@ -216,7 +441,7 @@ public sealed class DesktopIconLayoutService
 
             if (process == IntPtr.Zero)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error(), "无法读取 Windows Explorer 进程。");
+                throw new Win32Exception(Marshal.GetLastWin32Error(), LocalizationService.Get("ExplorerProcessUnavailable"));
             }
 
             try
@@ -266,7 +491,7 @@ public sealed class DesktopIconLayoutService
             var address = VirtualAllocEx(_process, IntPtr.Zero, (nuint)size, MemCommit | MemReserve, PageReadWrite);
             if (address == IntPtr.Zero)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error(), "无法分配桌面布局读取缓冲区。");
+                throw new Win32Exception(Marshal.GetLastWin32Error(), LocalizationService.Get("LayoutBufferAllocationFailed"));
             }
 
             return address;
@@ -281,7 +506,7 @@ public sealed class DesktopIconLayoutService
                 Marshal.StructureToPtr(value, local, false);
                 if (!WriteProcessMemory(_process, address, local, (nuint)size, out _))
                 {
-                    throw new Win32Exception(Marshal.GetLastWin32Error(), "无法写入桌面布局缓冲区。");
+                    throw new Win32Exception(Marshal.GetLastWin32Error(), LocalizationService.Get("LayoutBufferWriteFailed"));
                 }
             }
             finally
@@ -295,7 +520,7 @@ public sealed class DesktopIconLayoutService
             var bytes = new byte[size];
             if (!ReadProcessMemory(_process, address, bytes, (nuint)size, out _))
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error(), "无法读取桌面布局缓冲区。");
+                throw new Win32Exception(Marshal.GetLastWin32Error(), LocalizationService.Get("LayoutBufferReadFailed"));
             }
 
             return bytes;
@@ -316,6 +541,139 @@ public sealed class DesktopIconLayoutService
         public int X;
         public int Y;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeRect
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct NativeMonitorInfo
+    {
+        public int Size;
+        public NativeRect Monitor;
+        public NativeRect WorkArea;
+        public uint Flags;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string DeviceName;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct NativeDisplayDevice
+    {
+        public int Size;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string DeviceName;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string DeviceString;
+
+        public uint StateFlags;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string DeviceId;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string DeviceKey;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeLuid
+    {
+        public uint LowPart;
+        public int HighPart;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeDisplayConfigPathSourceInfo
+    {
+        public NativeLuid AdapterId;
+        public uint Id;
+        public uint ModeInfoIndex;
+        public uint StatusFlags;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeDisplayConfigRational
+    {
+        public uint Numerator;
+        public uint Denominator;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeDisplayConfigPathTargetInfo
+    {
+        public NativeLuid AdapterId;
+        public uint Id;
+        public uint ModeInfoIndex;
+        public uint OutputTechnology;
+        public uint Rotation;
+        public uint Scaling;
+        public NativeDisplayConfigRational RefreshRate;
+        public uint ScanLineOrdering;
+
+        [MarshalAs(UnmanagedType.Bool)]
+        public bool TargetAvailable;
+
+        public uint StatusFlags;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeDisplayConfigPathInfo
+    {
+        public NativeDisplayConfigPathSourceInfo SourceInfo;
+        public NativeDisplayConfigPathTargetInfo TargetInfo;
+        public uint Flags;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = 64)]
+    private struct NativeDisplayConfigModeInfo
+    {
+        private byte _reserved;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativeDisplayConfigDeviceInfoHeader
+    {
+        public uint Type;
+        public uint Size;
+        public NativeLuid AdapterId;
+        public uint Id;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct NativeDisplayConfigSourceDeviceName
+    {
+        public NativeDisplayConfigDeviceInfoHeader Header;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string ViewGdiDeviceName;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct NativeDisplayConfigTargetDeviceName
+    {
+        public NativeDisplayConfigDeviceInfoHeader Header;
+        public uint Flags;
+        public uint OutputTechnology;
+        public ushort EdidManufactureId;
+        public ushort EdidProductCodeId;
+        public uint ConnectorInstance;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+        public string MonitorFriendlyDeviceName;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string MonitorDevicePath;
+    }
+
+    private readonly record struct DisplayConfigIdentity(string FriendlyName, string DevicePath);
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct NativeLvItem
@@ -338,6 +696,7 @@ public sealed class DesktopIconLayoutService
     }
 
     private delegate bool EnumWindowsProc(IntPtr window, IntPtr parameter);
+    private delegate bool EnumMonitorsProc(IntPtr monitor, IntPtr deviceContext, IntPtr monitorRect, IntPtr parameter);
 
     [DllImport("user32.dll")]
     private static extern IntPtr GetShellWindow();
@@ -348,6 +707,47 @@ public sealed class DesktopIconLayoutService
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr parameter);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool EnumDisplayMonitors(
+        IntPtr deviceContext,
+        IntPtr clipRect,
+        EnumMonitorsProc callback,
+        IntPtr parameter);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetMonitorInfo(IntPtr monitor, ref NativeMonitorInfo info);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool EnumDisplayDevices(
+        string deviceName,
+        uint deviceNumber,
+        ref NativeDisplayDevice displayDevice,
+        uint flags);
+
+    [DllImport("user32.dll")]
+    private static extern int GetDisplayConfigBufferSizes(
+        uint flags,
+        out uint pathInfoArraySize,
+        out uint modeInfoArraySize);
+
+    [DllImport("user32.dll")]
+    private static extern int QueryDisplayConfig(
+        uint flags,
+        ref uint pathInfoArraySize,
+        [Out] NativeDisplayConfigPathInfo[] pathInfoArray,
+        ref uint modeInfoArraySize,
+        [Out] NativeDisplayConfigModeInfo[] modeInfoArray,
+        IntPtr currentTopologyId);
+
+    [DllImport("user32.dll", EntryPoint = "DisplayConfigGetDeviceInfo")]
+    private static extern int DisplayConfigGetDeviceInfo(ref NativeDisplayConfigSourceDeviceName requestPacket);
+
+    [DllImport("user32.dll", EntryPoint = "DisplayConfigGetDeviceInfo")]
+    private static extern int DisplayConfigGetDeviceInfo(ref NativeDisplayConfigTargetDeviceName requestPacket);
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint GetWindowThreadProcessId(IntPtr window, out uint processId);

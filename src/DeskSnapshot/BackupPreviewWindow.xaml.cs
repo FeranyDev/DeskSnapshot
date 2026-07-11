@@ -1,4 +1,5 @@
 using DeskSnapshot.Models;
+using DeskSnapshot.Services;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -15,12 +16,16 @@ public sealed partial class BackupPreviewWindow : Window
     private const double Inset = 14;
     private const double FramePadding = 36;
     private readonly DesktopLayoutBackup _backup;
+    private readonly MainWindow _owner;
 
-    public BackupPreviewWindow(DesktopLayoutBackup backup, Window owner)
+    public BackupPreviewWindow(DesktopLayoutBackup backup, MainWindow owner)
     {
         _backup = backup;
+        _owner = owner;
         InitializeComponent();
-        Title = $"{backup.Name} - 布局预览";
+        LocalizationBindings.Apply(RootGrid);
+        RootGrid.Loaded += (_, _) => LocalizationBindings.Apply(RootGrid);
+        Title = LocalizationService.Format("PreviewTitleFormat", backup.Name);
 
         try
         {
@@ -51,8 +56,9 @@ public sealed partial class BackupPreviewWindow : Window
 
         var desktopAspect = Math.Max(0.5, backup.Environment.VirtualWidth / (double)Math.Max(1, backup.Environment.VirtualHeight));
         var dpiScale = Math.Max(1d, GetDpiForWindow(ownerHandle) / 96d);
-        var horizontalChrome = 110 * dpiScale;
-        var verticalChrome = (string.IsNullOrWhiteSpace(backup.Note) ? 155 : 180) * dpiScale;
+        var horizontalChrome = 96 * dpiScale;
+        var monitorDetailsHeight = backup.Environment.Monitors.Count > 0 ? 24 : 0;
+        var verticalChrome = ((string.IsNullOrWhiteSpace(backup.Note) ? 215 : 240) + monitorDetailsHeight) * dpiScale;
         var maxWindowWidth = workArea.Width * 0.90;
         var maxWindowHeight = workArea.Height * 0.90;
         var maxPreviewWidth = Math.Max(400, maxWindowWidth - horizontalChrome);
@@ -77,12 +83,27 @@ public sealed partial class BackupPreviewWindow : Window
     {
         var environment = backup.Environment;
         BackupNameText.Text = backup.Name;
-        BackupSummaryText.Text = $"{backup.CreatedAt.LocalDateTime:yyyy-MM-dd HH:mm:ss}  ·  {backup.Icons.Count} 个图标  ·  {environment.VirtualWidth} × {environment.VirtualHeight}  ·  DPI {environment.Dpi}  ·  {environment.MonitorCount} 台显示器";
-        PreviewHintText.Text = "悬停图标查看名称和坐标";
+        BackupSummaryText.Text = LocalizationService.Format(
+            "PreviewSummaryFormat",
+            backup.CreatedAt.LocalDateTime.ToString("g"),
+            backup.Icons.Count,
+            environment.VirtualWidth,
+            environment.VirtualHeight,
+            environment.Dpi,
+            environment.MonitorCount);
+        PreviewHintText.Text = LocalizationService.Get("PreviewHint");
+
+        if (environment.Monitors.Count > 0)
+        {
+            var monitorNames = string.Join("  ·  ", environment.Monitors.Select(monitor =>
+                $"{monitor.Name} ({monitor.Width} × {monitor.Height})"));
+            BackupMonitorNamesText.Text = LocalizationService.Format("PreviewMonitorsFormat", monitorNames);
+            BackupMonitorNamesText.Visibility = Visibility.Visible;
+        }
 
         if (!string.IsNullOrWhiteSpace(backup.Note))
         {
-            BackupNoteText.Text = $"备注：{backup.Note}";
+            BackupNoteText.Text = LocalizationService.Format("PreviewNoteFormat", backup.Note);
             BackupNoteText.Visibility = Visibility.Visible;
         }
     }
@@ -162,7 +183,27 @@ public sealed partial class BackupPreviewWindow : Window
         App.Log($"Backup preview rendered {LayoutCanvas.Children.Count} square icons for {_backup.Id} at {canvasWidth:F0}x{canvasHeight:F0}");
     }
 
-    private void Close_Click(object sender, RoutedEventArgs e) => Close();
+    private async void Restore_Click(object sender, RoutedEventArgs e)
+    {
+        PreviewRestoreButton.IsEnabled = false;
+        PreviewRestoreIcon.Visibility = Visibility.Collapsed;
+        PreviewRestoreProgress.Visibility = Visibility.Visible;
+        PreviewRestoreProgress.IsActive = true;
+        try
+        {
+            if (await _owner.RestoreBackupFromPreviewAsync(_backup, RootGrid.XamlRoot))
+            {
+                Close();
+            }
+        }
+        finally
+        {
+            PreviewRestoreProgress.IsActive = false;
+            PreviewRestoreProgress.Visibility = Visibility.Collapsed;
+            PreviewRestoreIcon.Visibility = Visibility.Visible;
+            PreviewRestoreButton.IsEnabled = true;
+        }
+    }
 
     private const int GwlpHwndParent = -8;
 

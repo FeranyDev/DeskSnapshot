@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="AppSubtitle.Text" xml:space="preserve"><value>桌面布局备份</value></data>
+  <data name="NavDashboard.Content" xml:space="preserve"><value>概览</value></data>
+  <data name="NavBackups.Content" xml:space="preserve"><value>备份记录</value></data>
+  <data name="NavSettings.Content" xml:space="preserve"><value>设置</value></data>
+  <data name="NavAbout.Content" xml:space="preserve"><value>关于</value></data>
+  <data name="DashboardTitle.Text" xml:space="preserve"><value>桌面概览</value></data>
+  <data name="DashboardSubtitle.Text" xml:space="preserve"><value>保存图标位置，随时恢复。</value></data>
+  <data name="CreateBackupButton.Text" xml:space="preserve"><value>立即备份</value></data>
+  <data name="HeroTitle.Text" xml:space="preserve"><value>当前桌面已就绪</value></data>
+  <data name="HeroEnvironmentInitial.Text" xml:space="preserve"><value>正在读取显示环境…</value></data>
+  <data name="HeroIconInitial.Text" xml:space="preserve"><value>等待首次备份</value></data>
+  <data name="HistoryLabel.Text" xml:space="preserve"><value>历史备份</value></data>
+  <data name="MonitorsLabel.Text" xml:space="preserve"><value>当前显示器</value></data>
+  <data name="LastBackupInitial.Text" xml:space="preserve"><value>尚未备份</value></data>
+  <data name="LastSavedLabel.Text" xml:space="preserve"><value>最近保存</value></data>
+  <data name="ProtectionTitle.Text" xml:space="preserve"><value>恢复保护已开启</value></data>
+  <data name="ProtectionDescription.Text" xml:space="preserve"><value>恢复前会自动保存当前布局。</value></data>
+  <data name="ViewAllBackups.Content" xml:space="preserve"><value>查看备份</value></data>
+  <data name="BackupsTitle.Text" xml:space="preserve"><value>备份记录</value></data>
+  <data name="BackupsSubtitle.Text" xml:space="preserve"><value>按时间查看每次备份及其原因。</value></data>
+  <data name="NewBackupButton.Text" xml:space="preserve"><value>新建备份</value></data>
+  <data name="EmptyBackups.Text" xml:space="preserve"><value>暂无备份。点击“新建备份”保存当前桌面。</value></data>
+  <data name="SelectionHint.Text" xml:space="preserve"><value>选择记录后可预览、恢复或删除</value></data>
+  <data name="DeleteBackup.Content" xml:space="preserve"><value>删除</value></data>
+  <data name="ViewBackup.Content" xml:space="preserve"><value>查看</value></data>
+  <data name="RestoreBackupButton.Text" xml:space="preserve"><value>恢复布局</value></data>
+  <data name="SettingsTitle.Text" xml:space="preserve"><value>设置</value></data>
+  <data name="SettingsSubtitle.Text" xml:space="preserve"><value>调整备份、启动和外观。</value></data>
+  <data name="AutoBackupTitle.Text" xml:space="preserve"><value>自动备份</value></data>
+  <data name="AutoBackupInitial.Text" xml:space="preserve"><value>自动备份已关闭</value></data>
+  <data name="AutoBackupToggle.OffContent" xml:space="preserve"><value>关</value></data>
+  <data name="AutoBackupToggle.OnContent" xml:space="preserve"><value>开</value></data>
+  <data name="ScheduledTitle.Text" xml:space="preserve"><value>定时备份</value></data>
+  <data name="ScheduledDescription.Text" xml:space="preserve"><value>按固定间隔保存布局。</value></data>
+  <data name="IntervalLabel.Text" xml:space="preserve"><value>备份间隔</value></data>
+  <data name="Interval5.Content" xml:space="preserve"><value>每 5 分钟</value></data>
+  <data name="Interval15.Content" xml:space="preserve"><value>每 15 分钟</value></data>
+  <data name="Interval30.Content" xml:space="preserve"><value>每 30 分钟</value></data>
+  <data name="Interval60.Content" xml:space="preserve"><value>每 1 小时</value></data>
+  <data name="Interval180.Content" xml:space="preserve"><value>每 3 小时</value></data>
+  <data name="EventTriggersTitle.Text" xml:space="preserve"><value>事件触发</value></data>
+  <data name="EventTriggersDescription.Text" xml:space="preserve"><value>变化稳定后再备份，避免重复记录。</value></data>
+  <data name="StartupTrigger.Content" xml:space="preserve"><value>程序启动</value></data>
+  <data name="DisplayTrigger.Content" xml:space="preserve"><value>显示器、分辨率或 DPI 变化</value></data>
+  <data name="DesktopTrigger.Content" xml:space="preserve"><value>桌面图标或位置变化</value></data>
+  <data name="RetentionLabel.Text" xml:space="preserve"><value>自动备份保留数量</value></data>
+  <data name="RetentionText.Text" xml:space="preserve"><value>可保留 1–200 份；超出后自动删除最早记录。</value></data>
+  <data name="BackgroundTitle.Text" xml:space="preserve"><value>启动与后台</value></data>
+  <data name="BackgroundInitial.Text" xml:space="preserve"><value>可选开机启动或通知区域运行。</value></data>
+  <data name="RunAtStartupTitle.Text" xml:space="preserve"><value>开机启动</value></data>
+  <data name="RunAtStartupDescription.Text" xml:space="preserve"><value>随当前 Windows 用户登录启动。</value></data>
+  <data name="TrayModeTitle.Text" xml:space="preserve"><value>关闭后在通知区域运行</value></data>
+  <data name="TrayModeDescription.Text" xml:space="preserve"><value>后台继续自动备份；从托盘重新打开或退出。</value></data>
+  <data name="ThemeTitle.Text" xml:space="preserve"><value>应用主题</value></data>
+  <data name="ThemeDescription.Text" xml:space="preserve"><value>选择界面明暗模式。</value></data>
+  <data name="ThemeSystem.Content" xml:space="preserve"><value>跟随系统</value></data>
+  <data name="ThemeLight.Content" xml:space="preserve"><value>浅色</value></data>
+  <data name="ThemeDark.Content" xml:space="preserve"><value>深色</value></data>
+  <data name="LanguageTitle.Text" xml:space="preserve"><value>界面语言</value></data>
+  <data name="LanguageDescription.Text" xml:space="preserve"><value>切换后应用会自动重启。</value></data>
+  <data name="LanguageSystem.Content" xml:space="preserve"><value>跟随系统</value></data>
+  <data name="LanguageChinese.Content" xml:space="preserve"><value>简体中文</value></data>
+  <data name="LanguageEnglish.Content" xml:space="preserve"><value>English</value></data>
+  <data name="SafetyBackupTitle.Text" xml:space="preserve"><value>恢复前备份</value></data>
+  <data name="SafetyBackupDescription.Text" xml:space="preserve"><value>始终开启，防止误恢复后无法撤回。</value></data>
+  <data name="AboutTitle.Text" xml:space="preserve"><value>关于</value></data>
+  <data name="AboutSubtitle.Text" xml:space="preserve"><value>版本、数据和隐私信息。</value></data>
+  <data name="AboutTagline.Text" xml:space="preserve"><value>轻量、离线的桌面图标布局备份工具</value></data>
+  <data name="VersionInitial.Text" xml:space="preserve"><value>版本 1.0.0</value></data>
+  <data name="LocalStorageTitle.Text" xml:space="preserve"><value>本地离线存储</value></data>
+  <data name="LocalStorageDescription.Text" xml:space="preserve"><value>布局和设置只保存在本机，不会上传。</value></data>
+  <data name="BackupDataLocation.Text" xml:space="preserve"><value>备份数据位置</value></data>
+  <data name="SafeWriteTitle.Text" xml:space="preserve"><value>安全写入</value></data>
+  <data name="SafeWriteDescription.Text" xml:space="preserve"><value>JSON 原子写入，损坏文件会自动隔离。</value></data>
+  <data name="RecoveryProtectionTitle.Text" xml:space="preserve"><value>恢复保护</value></data>
+  <data name="RecoveryProtectionDescription.Text" xml:space="preserve"><value>恢复前保存当前桌面，便于撤回。</value></data>
+  <data name="TechnicalInfoTitle.Text" xml:space="preserve"><value>兼容性</value></data>
+  <data name="TechnicalInfoStack.Text" xml:space="preserve"><value>Windows 10/11 · x64</value></data>
+  <data name="TechnicalInfoDemo.Text" xml:space="preserve"><value>支持由 Windows 资源管理器管理的标准桌面。</value></data>
+  <data name="BusyInitial.Text" xml:space="preserve"><value>正在处理桌面布局…</value></data>
+  <data name="PreviewRestoreButton.Text" xml:space="preserve"><value>恢复布局</value></data>
+  <data name="PreviewEmpty.Text" xml:space="preserve"><value>此备份没有可显示的图标位置</value></data>
+  <data name="WindowTitle" xml:space="preserve"><value>DeskSnapshot - 桌面布局备份</value></data>
+  <data name="VersionFormat" xml:space="preserve"><value>版本 {0}.{1}.{2}</value></data>
+  <data name="ReadFailed" xml:space="preserve"><value>读取失败</value></data>
+  <data name="MonitorCountFormat" xml:space="preserve"><value>{0} 台显示器</value></data>
+  <data name="LatestIconCountFormat" xml:space="preserve"><value>最近记录 {0} 个图标</value></data>
+  <data name="TodayDateFormat" xml:space="preserve"><value>今天 · {0}</value></data>
+  <data name="YesterdayDateFormat" xml:space="preserve"><value>昨天 · {0}</value></data>
+  <data name="RecordCountFormat" xml:space="preserve"><value>{0} 条记录</value></data>
+  <data name="IconCountFormat" xml:space="preserve"><value>{0} 个图标</value></data>
+  <data name="ManualBackup" xml:space="preserve"><value>手动备份</value></data>
+  <data name="AutomaticBackup" xml:space="preserve"><value>自动备份</value></data>
+  <data name="SafetyBackup" xml:space="preserve"><value>恢复前备份</value></data>
+  <data name="AutomaticReasonFormat" xml:space="preserve"><value>由“{0}”触发</value></data>
+  <data name="SafetySummary" xml:space="preserve"><value>恢复前自动保存了当时的桌面</value></data>
+  <data name="SafetySummaryNamed" xml:space="preserve"><value>恢复“{0}”前自动保存了当时的桌面</value></data>
+  <data name="ReasonDesktopChange" xml:space="preserve"><value>图标布局变化</value></data>
+  <data name="ReasonDisplayChange" xml:space="preserve"><value>显示环境变化</value></data>
+  <data name="ReasonStartup" xml:space="preserve"><value>程序启动</value></data>
+  <data name="ReasonSchedule" xml:space="preserve"><value>定时</value></data>
+  <data name="ReasonRule" xml:space="preserve"><value>自动备份规则</value></data>
+  <data name="BackupNameHeader" xml:space="preserve"><value>备份名称</value></data>
+  <data name="BackupNoteHeader" xml:space="preserve"><value>备注（可选）</value></data>
+  <data name="BackupNotePlaceholder" xml:space="preserve"><value>例如：双显示器布局</value></data>
+  <data name="DesktopLayoutNameFormat" xml:space="preserve"><value>桌面布局 {0}</value></data>
+  <data name="SaveLayoutTitle" xml:space="preserve"><value>保存当前桌面布局</value></data>
+  <data name="CreateBackup" xml:space="preserve"><value>创建备份</value></data>
+  <data name="Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="ReadingIcons" xml:space="preserve"><value>正在读取桌面图标…</value></data>
+  <data name="BackupCompleted" xml:space="preserve"><value>备份已完成</value></data>
+  <data name="BackupCompletedMessage" xml:space="preserve"><value>已记录 {0} 个桌面图标。</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>备份失败</value></data>
+  <data name="RestoreTitle" xml:space="preserve"><value>恢复桌面布局？</value></data>
+  <data name="RestoreConfirm" xml:space="preserve"><value>将恢复“{0}”。当前布局会先保存为安全备份。</value></data>
+  <data name="RestoreFollowMonitors" xml:space="preserve"><value>跟随显示器位置恢复图标</value></data>
+  <data name="RestoreFollowMonitorsDescription" xml:space="preserve"><value>显示器排列发生变化时，让图标保持在原来的显示器及相对位置。</value></data>
+  <data name="Restore" xml:space="preserve"><value>恢复</value></data>
+  <data name="CreatingSafetyBackup" xml:space="preserve"><value>正在创建恢复前备份…</value></data>
+  <data name="RestoringIcons" xml:space="preserve"><value>正在恢复图标位置…</value></data>
+  <data name="RestoreCompleted" xml:space="preserve"><value>恢复完成</value></data>
+  <data name="RestoreResult" xml:space="preserve"><value>已恢复 {0} 个图标，跳过 {1} 个，失败 {2} 个。</value></data>
+  <data name="RestoreResultMapped" xml:space="preserve"><value>已恢复 {0} 个图标，跳过 {1} 个，失败 {2} 个；其中 {3} 个跟随显示器重新定位。</value></data>
+  <data name="RestoreFailed" xml:space="preserve"><value>恢复失败</value></data>
+  <data name="DeleteTitle" xml:space="preserve"><value>删除这条备份？</value></data>
+  <data name="DeleteConfirm" xml:space="preserve"><value>“{0}”将从本机永久删除。</value></data>
+  <data name="DeleteMultipleTitle" xml:space="preserve"><value>删除选中的备份？</value></data>
+  <data name="DeleteMultipleConfirm" xml:space="preserve"><value>选中的 {0} 份备份将从本机永久删除，未选中的子备份会继续保留。</value></data>
+  <data name="Delete" xml:space="preserve"><value>删除</value></data>
+  <data name="BackupDeleted" xml:space="preserve"><value>备份已删除</value></data>
+  <data name="BackupDeletedMessage" xml:space="preserve"><value>本地记录已更新。</value></data>
+  <data name="BackupsDeletedMessage" xml:space="preserve"><value>已删除 {0} 份备份，本地记录已更新。</value></data>
+  <data name="SelectedFormat" xml:space="preserve"><value>已选择：{0}</value></data>
+  <data name="SelectedCountFormat" xml:space="preserve"><value>已选择 {0} 份备份；可批量删除</value></data>
+  <data name="RestartingLanguage" xml:space="preserve"><value>正在切换语言…</value></data>
+  <data name="BackgroundSettingsFailed" xml:space="preserve"><value>后台设置失败</value></data>
+  <data name="AutoBackupOff" xml:space="preserve"><value>自动备份已关闭</value></data>
+  <data name="EveryMinutesFormat" xml:space="preserve"><value>每 {0} 分钟</value></data>
+  <data name="AutoNoTrigger" xml:space="preserve"><value>自动备份已开启，尚未选择触发方式</value></data>
+  <data name="EnabledModesFormat" xml:space="preserve"><value>已启用：{0}</value></data>
+  <data name="AutoBackupFailedFormat" xml:space="preserve"><value>自动备份检测失败：{0}</value></data>
+  <data name="LastAutoBackupFormat" xml:space="preserve"><value>上次自动备份：{0}（{1}）</value></data>
+  <data name="TrayRunningTitle" xml:space="preserve"><value>DeskSnapshot 正在后台运行</value></data>
+  <data name="TrayRunningMessage" xml:space="preserve"><value>自动备份会继续运行；双击托盘图标可打开主窗口。</value></data>
+  <data name="TrayBusy" xml:space="preserve"><value>正在处理另一项备份，请稍后再试。</value></data>
+  <data name="TrayBackupNameFormat" xml:space="preserve"><value>托盘快速备份 {0}</value></data>
+  <data name="TrayBackupNote" xml:space="preserve"><value>从通知区域手动创建</value></data>
+  <data name="PreviewTitleFormat" xml:space="preserve"><value>{0} - 布局预览</value></data>
+  <data name="PreviewSummaryFormat" xml:space="preserve"><value>{0} · {1} 个图标 · {2} × {3} · DPI {4} · {5} 台显示器</value></data>
+  <data name="PreviewMonitorsFormat" xml:space="preserve"><value>显示器：{0}</value></data>
+  <data name="PreviewHint" xml:space="preserve"><value>悬停图标查看名称和坐标</value></data>
+  <data name="PreviewNoteFormat" xml:space="preserve"><value>备注：{0}</value></data>
+  <data name="NoBackupsYet" xml:space="preserve"><value>尚未备份</value></data>
+  <data name="WaitingFirstBackup" xml:space="preserve"><value>等待首次备份</value></data>
+  <data name="SelectionHintDynamic" xml:space="preserve"><value>选择记录后可预览、恢复或删除</value></data>
+  <data name="BusyText" xml:space="preserve"><value>正在处理桌面布局…</value></data>
+  <data name="RunAtStartupEnabled" xml:space="preserve"><value>已开机自启</value></data>
+  <data name="TrayModeEnabled" xml:space="preserve"><value>已启用后台运行</value></data>
+  <data name="BackgroundModeOff" xml:space="preserve"><value>可选开机启动或通知区域运行。</value></data>
+  <data name="TrayUnavailable" xml:space="preserve"><value>当前系统无法创建通知区域图标。</value></data>
+  <data name="StartupRequestDenied" xml:space="preserve"><value>Windows 未允许开机启动。可在“设置 > 应用 > 启动”中调整。</value></data>
+  <data name="StartupRegistryUnavailable" xml:space="preserve"><value>无法打开当前用户的启动项设置。</value></data>
+  <data name="ExecutablePathUnavailable" xml:space="preserve"><value>无法确定 DeskSnapshot 的程序路径。</value></data>
+  <data name="TrayIconLoadFailed" xml:space="preserve"><value>无法加载通知区域图标。</value></data>
+  <data name="TrayMessageHookFailed" xml:space="preserve"><value>无法连接通知区域消息。</value></data>
+  <data name="TrayIconCreateFailed" xml:space="preserve"><value>无法创建通知区域图标。</value></data>
+  <data name="TrayIconRemoveFailed" xml:space="preserve"><value>无法移除通知区域图标。</value></data>
+  <data name="TrayOpen" xml:space="preserve"><value>打开 DeskSnapshot</value></data>
+  <data name="TrayBackupNow" xml:space="preserve"><value>立即备份</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>退出</value></data>
+  <data name="AppDisplayName" xml:space="preserve"><value>DeskSnapshot</value></data>
+  <data name="PublisherDisplayName" xml:space="preserve"><value>FeranyDev</value></data>
+  <data name="AppDescription" xml:space="preserve"><value>本地桌面图标布局备份与恢复工具</value></data>
+  <data name="UnnamedIconFormat" xml:space="preserve"><value>未命名图标 #{0}</value></data>
+  <data name="ExplorerDesktopNotFound" xml:space="preserve"><value>找不到 Windows Explorer 桌面视图。请确认 Explorer 正在运行。</value></data>
+  <data name="DesktopIconListNotFound" xml:space="preserve"><value>找不到桌面图标列表。当前桌面外壳可能不受支持。</value></data>
+  <data name="ExplorerNotResponding" xml:space="preserve"><value>Windows Explorer 未响应桌面布局请求。</value></data>
+  <data name="ExplorerProcessUnavailable" xml:space="preserve"><value>无法读取 Windows Explorer 进程。</value></data>
+  <data name="LayoutBufferAllocationFailed" xml:space="preserve"><value>无法分配桌面布局缓冲区。</value></data>
+  <data name="LayoutBufferWriteFailed" xml:space="preserve"><value>无法写入桌面布局缓冲区。</value></data>
+  <data name="LayoutBufferReadFailed" xml:space="preserve"><value>无法读取桌面布局缓冲区。</value></data>
+</root>

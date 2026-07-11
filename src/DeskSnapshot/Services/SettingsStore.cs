@@ -13,13 +13,30 @@ public sealed class SettingsStore
 
     private readonly string _filePath;
 
+    public static string ReadUiLanguage()
+    {
+        var filePath = GetSettingsPath();
+        if (!File.Exists(filePath))
+        {
+            return "system";
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(File.ReadAllText(filePath));
+            return document.RootElement.TryGetProperty("uiLanguage", out var value)
+                ? LocalizationService.NormalizeLanguage(value.GetString())
+                : "system";
+        }
+        catch (JsonException)
+        {
+            return "system";
+        }
+    }
+
     public SettingsStore()
     {
-        var folder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "DeskSnapshot");
-        Directory.CreateDirectory(folder);
-        _filePath = Path.Combine(folder, "settings.json");
+        _filePath = GetSettingsPath();
     }
 
     public async Task<AppSettings> LoadAsync()
@@ -49,5 +66,11 @@ public sealed class SettingsStore
         }
 
         File.Move(tempPath, _filePath, true);
+    }
+
+    private static string GetSettingsPath()
+    {
+        var folder = AppDataPathService.GetLocalDataFolder();
+        return Path.Combine(folder, "settings.json");
     }
 }

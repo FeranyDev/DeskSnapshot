@@ -2,6 +2,7 @@
     x:Class="DeskSnapshot.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DeskSnapshot.Services"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -17,7 +18,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                     <Image Source="Assets/DeskSnapshot_96x96.png" Width="26" Height="26" Stretch="Uniform" />
                     <TextBlock Text="DeskSnapshot" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <TextBlock Text="桌面布局备份" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center" />
+                    <TextBlock x:Uid="AppSubtitle" local:LocalizationBindings.Key="AppSubtitle" Text="桌面布局备份" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" VerticalAlignment="Center" />
                 </StackPanel>
             </Grid>
         </Border>
@@ -31,34 +32,31 @@
                         PaneDisplayMode="Auto"
                         OpenPaneLength="232"
                         CompactPaneLength="48"
-                        PaneOpened="AppNavigationView_PaneOpened"
-                        PaneClosed="AppNavigationView_PaneClosed"
                         SelectionChanged="AppNavigationView_SelectionChanged">
             <NavigationView.MenuItems>
-                <NavigationViewItem x:Name="DashboardNavItem" Content="概览" Tag="dashboard">
+                <NavigationViewItem x:Uid="NavDashboard" local:LocalizationBindings.Key="NavDashboard" x:Name="DashboardNavItem" Content="概览" Tag="dashboard">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE80F;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Name="BackupsNavItem" Content="备份记录" Tag="backups">
+                <NavigationViewItem x:Uid="NavBackups" local:LocalizationBindings.Key="NavBackups" x:Name="BackupsNavItem" Content="备份记录" Tag="backups">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE8C8;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Name="SettingsNavItem" Content="设置" Tag="settings">
+                <NavigationViewItem x:Uid="NavSettings" local:LocalizationBindings.Key="NavSettings" x:Name="SettingsNavItem" Content="设置" Tag="settings">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE713;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
-            <NavigationView.PaneFooter>
-                <Border x:Name="LocalStorageFooter" Margin="8,8,8,14" Padding="12" CornerRadius="10" Background="{ThemeResource SubtleBrush}">
-                    <StackPanel Spacing="4">
-                        <TextBlock Text="本地离线存储" FontWeight="SemiBold" FontSize="12" />
-                        <TextBlock Text="布局数据不会上传" FontSize="11" Foreground="{ThemeResource MutedTextBrush}" />
-                    </StackPanel>
-                </Border>
-            </NavigationView.PaneFooter>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:Uid="NavAbout" local:LocalizationBindings.Key="NavAbout" x:Name="AboutNavItem" Content="关于" Tag="about">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE946;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
             <NavigationView.Content>
             <Grid>
                 <InfoBar x:Name="ActionInfoBar" Margin="28,16,28,0" VerticalAlignment="Top" IsOpen="False" IsClosable="True" Canvas.ZIndex="10" />
@@ -75,13 +73,13 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Spacing="5">
-                                <TextBlock Text="桌面概览" Style="{ThemeResource TitleTextBlockStyle}" />
-                                <TextBlock Text="保存此刻的图标位置，需要时一键还原。" Foreground="{ThemeResource MutedTextBrush}" />
+                                <TextBlock x:Uid="DashboardTitle" local:LocalizationBindings.Key="DashboardTitle" Text="桌面概览" Style="{ThemeResource TitleTextBlockStyle}" />
+                                <TextBlock x:Uid="DashboardSubtitle" local:LocalizationBindings.Key="DashboardSubtitle" Text="保存图标位置，随时恢复。" Foreground="{ThemeResource MutedTextBrush}" />
                             </StackPanel>
                             <Button Grid.Column="1" Click="CreateBackup_Click" Padding="18,10" CornerRadius="8">
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon Glyph="&#xE74E;" FontSize="15" />
-                                    <TextBlock Text="立即备份" />
+                                    <TextBlock x:Uid="CreateBackupButton" local:LocalizationBindings.Key="CreateBackupButton" Text="立即备份" />
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -99,11 +97,11 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Spacing="8">
-                                    <TextBlock Text="当前桌面已就绪" Foreground="White" FontSize="22" FontWeight="SemiBold" />
-                                    <TextBlock x:Name="HeroEnvironmentText" Text="正在读取显示环境…" Foreground="#DFFFFFFF" />
+                                    <TextBlock x:Uid="HeroTitle" local:LocalizationBindings.Key="HeroTitle" Text="当前桌面已就绪" Foreground="White" FontSize="22" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="HeroEnvironmentInitial" local:LocalizationBindings.Key="HeroEnvironmentInitial" x:Name="HeroEnvironmentText" Text="正在读取显示环境…" Foreground="#DFFFFFFF" />
                                     <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
                                         <Border Background="#25FFFFFF" CornerRadius="12" Padding="10,4">
-                                            <TextBlock x:Name="HeroIconCountText" Text="等待首次备份" Foreground="White" FontSize="12" />
+                                            <TextBlock x:Uid="HeroIconInitial" local:LocalizationBindings.Key="HeroIconInitial" x:Name="HeroIconCountText" Text="等待首次备份" Foreground="White" FontSize="12" />
                                         </Border>
                                         <Border Background="#25FFFFFF" CornerRadius="12" Padding="10,4">
                                             <TextBlock x:Name="HeroDpiText" Text="DPI --" Foreground="White" FontSize="12" />
@@ -124,21 +122,21 @@
                                 <StackPanel Spacing="7">
                                     <FontIcon Glyph="&#xE8C8;" Foreground="#1667D9" HorizontalAlignment="Left" />
                                     <TextBlock x:Name="BackupCountText" Text="0" FontSize="26" FontWeight="SemiBold" />
-                                    <TextBlock Text="历史备份" Foreground="{ThemeResource MutedTextBrush}" />
+                                    <TextBlock x:Uid="HistoryLabel" local:LocalizationBindings.Key="HistoryLabel" Text="历史备份" Foreground="{ThemeResource MutedTextBrush}" />
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="1" Style="{StaticResource CardStyle}">
                                 <StackPanel Spacing="7">
                                     <FontIcon Glyph="&#xE81C;" Foreground="#0F9D75" HorizontalAlignment="Left" />
                                     <TextBlock x:Name="MonitorCountText" Text="--" FontSize="26" FontWeight="SemiBold" />
-                                    <TextBlock Text="当前显示器" Foreground="{ThemeResource MutedTextBrush}" />
+                                    <TextBlock x:Uid="MonitorsLabel" local:LocalizationBindings.Key="MonitorsLabel" Text="当前显示器" Foreground="{ThemeResource MutedTextBrush}" />
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="2" Style="{StaticResource CardStyle}">
                                 <StackPanel Spacing="7">
                                     <FontIcon Glyph="&#xE823;" Foreground="#E58A16" HorizontalAlignment="Left" />
-                                    <TextBlock x:Name="LastBackupText" Text="尚未备份" FontSize="17" FontWeight="SemiBold" Margin="0,5,0,2" />
-                                    <TextBlock Text="最近保存" Foreground="{ThemeResource MutedTextBrush}" />
+                                    <TextBlock x:Uid="LastBackupInitial" local:LocalizationBindings.Key="LastBackupInitial" x:Name="LastBackupText" Text="尚未备份" FontSize="17" FontWeight="SemiBold" Margin="0,5,0,2" />
+                                    <TextBlock x:Uid="LastSavedLabel" local:LocalizationBindings.Key="LastSavedLabel" Text="最近保存" Foreground="{ThemeResource MutedTextBrush}" />
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -150,10 +148,10 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Spacing="5">
-                                    <TextBlock Text="恢复保护已开启" FontSize="16" FontWeight="SemiBold" />
-                                    <TextBlock Text="每次恢复前，DeskSnapshot 都会自动保存当前布局。" Foreground="{ThemeResource MutedTextBrush}" />
+                                    <TextBlock x:Uid="ProtectionTitle" local:LocalizationBindings.Key="ProtectionTitle" Text="恢复保护已开启" FontSize="16" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="ProtectionDescription" local:LocalizationBindings.Key="ProtectionDescription" Text="恢复前会自动保存当前布局。" Foreground="{ThemeResource MutedTextBrush}" />
                                 </StackPanel>
-                                <Button Grid.Column="1" Content="查看所有备份" Click="BackupsNav_Click" VerticalAlignment="Center" />
+                                <Button x:Uid="ViewAllBackups" local:LocalizationBindings.Key="ViewAllBackups" Grid.Column="1" Content="查看备份" Click="BackupsNav_Click" VerticalAlignment="Center" />
                             </Grid>
                         </Border>
                     </StackPanel>
@@ -173,52 +171,119 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="5">
-                            <TextBlock Text="备份记录" Style="{ThemeResource TitleTextBlockStyle}" />
-                            <TextBlock Text="选择一个布局进行恢复，缺失的图标会被安全跳过。" Foreground="{ThemeResource MutedTextBrush}" />
+                            <TextBlock x:Uid="BackupsTitle" local:LocalizationBindings.Key="BackupsTitle" Text="备份记录" Style="{ThemeResource TitleTextBlockStyle}" />
+                            <TextBlock x:Uid="BackupsSubtitle" local:LocalizationBindings.Key="BackupsSubtitle" Text="按时间查看每次备份及其原因。" Foreground="{ThemeResource MutedTextBrush}" />
                         </StackPanel>
                         <Button Grid.Column="1" Click="CreateBackup_Click" Padding="16,9">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE74E;" FontSize="14" />
-                                <TextBlock Text="新建备份" />
+                                <TextBlock x:Uid="NewBackupButton" local:LocalizationBindings.Key="NewBackupButton" Text="新建备份" />
                             </StackPanel>
                         </Button>
                     </Grid>
 
                     <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="0">
                         <Grid>
-                            <TextBlock x:Name="EmptyBackupsText" Text="还没有备份，点击“新建备份”保存当前桌面。" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{ThemeResource MutedTextBrush}" />
+                            <TextBlock x:Uid="EmptyBackups" local:LocalizationBindings.Key="EmptyBackups" x:Name="EmptyBackupsText" Text="暂无备份。点击“新建备份”保存当前桌面。" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{ThemeResource MutedTextBrush}" />
                             <ListView x:Name="BackupsList"
-                                      ItemsSource="{x:Bind BackupItems}"
+                                      ItemsSource="{x:Bind BackupTimelineSource.View}"
+                                      SelectionMode="Multiple"
+                                      IsMultiSelectCheckBoxEnabled="False"
                                       SelectionChanged="BackupsList_SelectionChanged"
-                                      DoubleTapped="BackupsList_DoubleTapped"
                                       Margin="8"
                                       HorizontalContentAlignment="Stretch">
+                                <ListView.GroupStyle>
+                                    <GroupStyle>
+                                        <GroupStyle.HeaderTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="14,18,14,7" ColumnSpacing="10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="{Binding Header}" FontSize="15" FontWeight="SemiBold" />
+                                                    <Rectangle Grid.Column="1" Height="1" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Column="2" Text="{Binding CountText}" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </GroupStyle.HeaderTemplate>
+                                    </GroupStyle>
+                                </ListView.GroupStyle>
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                        <Setter Property="Padding" Value="12" />
-                                        <Setter Property="Margin" Value="0,2" />
+                                        <Setter Property="Padding" Value="8,10" />
+                                        <Setter Property="Margin" Value="8,1" />
                                         <Setter Property="CornerRadius" Value="8" />
                                     </Style>
                                 </ListView.ItemContainerStyle>
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid ColumnSpacing="16">
+                                        <Border Margin="{Binding RowMargin}"
+                                                Padding="7,4"
+                                                CornerRadius="8"
+                                                Background="{Binding SelectionBackground}"
+                                                BorderBrush="{Binding SelectionBorderBrush}"
+                                                BorderThickness="{Binding SelectionBorderThickness}">
+                                        <Grid ColumnSpacing="12" MinHeight="64">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="42" />
+                                                <ColumnDefinition Width="32" />
+                                                <ColumnDefinition Width="58" />
+                                                <ColumnDefinition Width="38" />
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <Image Width="38" Height="38" Source="Assets/DeskSnapshot_96x96.png" Stretch="Uniform" />
-                                            <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                                <TextBlock Text="{Binding Details}" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                                            <Border Grid.ColumnSpan="3" Background="Transparent" Tag="NoPreview" />
+                                            <Border Width="24"
+                                                    Height="24"
+                                                    CornerRadius="5"
+                                                    BorderThickness="2"
+                                                    Background="{Binding SelectionBoxBackground}"
+                                                    BorderBrush="{Binding SelectionBoxBorderBrush}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Tag="NoPreview"
+                                                    IsHitTestVisible="False">
+                                                <FontIcon Glyph="&#xE73E;"
+                                                          FontSize="13"
+                                                          Foreground="White"
+                                                          Visibility="{Binding SelectionCheckVisibility}" />
+                                            </Border>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Tag="NoPreview">
+                                                <TextBlock Text="{Binding TimeDisplay}" FontSize="17" FontWeight="SemiBold" />
                                             </StackPanel>
-                                            <StackPanel Grid.Column="2" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding CreatedAtDisplay}" FontSize="12" />
-                                                <TextBlock Text="{Binding Badge}" FontSize="11" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Right" />
-                                            </StackPanel>
+                                            <Grid Grid.Column="1" Width="16" Height="32" HorizontalAlignment="Left" VerticalAlignment="Center" Visibility="{Binding ChildConnectorVisibility}" Tag="NoPreview">
+                                                <Border Width="2" Height="18" Background="{ThemeResource DividerStrokeColorDefaultBrush}" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                                                <Border Width="14" Height="2" Background="{ThemeResource DividerStrokeColorDefaultBrush}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Grid Grid.Column="2" Tag="NoPreview">
+                                                <Rectangle Width="2" Fill="{ThemeResource DividerStrokeColorDefaultBrush}" HorizontalAlignment="Center" />
+                                                <Border Width="32" Height="32" CornerRadius="16" Background="{ThemeResource AccentFillColorSecondaryBrush}" VerticalAlignment="Center">
+                                                    <FontIcon Glyph="{Binding TypeGlyph}" FontSize="14" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                                </Border>
+                                            </Grid>
+                                            <Grid Grid.Column="3"
+                                                  Grid.ColumnSpan="2"
+                                                  Background="Transparent"
+                                                  ColumnSpacing="12"
+                                                  PointerPressed="BackupContent_PointerPressed"
+                                                  DoubleTapped="BackupContent_DoubleTapped">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Spacing="3" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding TypeTitle}" FontWeight="SemiBold" FontSize="15" />
+                                                    <TextBlock Text="{Binding EventSummary}" TextTrimming="CharacterEllipsis" Foreground="{ThemeResource MutedTextBrush}" />
+                                                    <TextBlock Text="{Binding FullTimeDisplay}" FontSize="11" Foreground="{ThemeResource MutedTextBrush}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Spacing="4" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Details}" FontSize="11" Foreground="{ThemeResource MutedTextBrush}" HorizontalAlignment="Right" />
+                                                </StackPanel>
+                                            </Grid>
                                         </Grid>
+                                        </Border>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
@@ -226,14 +291,14 @@
                     </Border>
 
                     <Grid Grid.Row="4">
-                        <TextBlock x:Name="SelectionHintText" Text="选择一条记录以执行操作" Foreground="{ThemeResource MutedTextBrush}" VerticalAlignment="Center" />
+                        <TextBlock x:Uid="SelectionHint" local:LocalizationBindings.Key="SelectionHint" x:Name="SelectionHintText" Text="选择记录后可预览、恢复或删除" Foreground="{ThemeResource MutedTextBrush}" VerticalAlignment="Center" />
                         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-                            <Button x:Name="DeleteBackupButton" Content="删除" IsEnabled="False" Click="DeleteBackup_Click" />
-                            <Button x:Name="ViewBackupButton" Content="查看详情" IsEnabled="False" Click="ViewBackup_Click" />
+                            <Button x:Uid="DeleteBackup" local:LocalizationBindings.Key="DeleteBackup" x:Name="DeleteBackupButton" Content="删除" IsEnabled="False" Click="DeleteBackup_Click" />
+                            <Button x:Uid="ViewBackup" local:LocalizationBindings.Key="ViewBackup" x:Name="ViewBackupButton" Content="查看" IsEnabled="False" Click="ViewBackup_Click" />
                             <Button x:Name="RestoreBackupButton" IsEnabled="False" Click="RestoreBackup_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="7">
                                     <FontIcon Glyph="&#xE777;" FontSize="14" />
-                                    <TextBlock Text="恢复所选布局" />
+                                    <TextBlock x:Uid="RestoreBackupButton" local:LocalizationBindings.Key="RestoreBackupButton" Text="恢复布局" />
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -248,8 +313,8 @@
                               HorizontalContentAlignment="Stretch">
                     <StackPanel HorizontalAlignment="Stretch" Spacing="20">
                         <StackPanel Spacing="5">
-                            <TextBlock Text="设置" Style="{ThemeResource TitleTextBlockStyle}" />
-                            <TextBlock Text="调整 DeskSnapshot 的外观和行为。" Foreground="{ThemeResource MutedTextBrush}" />
+                            <TextBlock x:Uid="SettingsTitle" local:LocalizationBindings.Key="SettingsTitle" Text="设置" Style="{ThemeResource TitleTextBlockStyle}" />
+                            <TextBlock x:Uid="SettingsSubtitle" local:LocalizationBindings.Key="SettingsSubtitle" Text="调整备份、启动和外观。" Foreground="{ThemeResource MutedTextBrush}" />
                         </StackPanel>
 
                         <Border Style="{StaticResource CardStyle}">
@@ -259,13 +324,13 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="自动备份" FontWeight="SemiBold" FontSize="16" />
-                                    <TextBlock x:Name="AutoBackupStatusText"
+                                    <TextBlock x:Uid="AutoBackupTitle" local:LocalizationBindings.Key="AutoBackupTitle" Text="自动备份" FontWeight="SemiBold" FontSize="16" />
+                                    <TextBlock x:Uid="AutoBackupInitial" local:LocalizationBindings.Key="AutoBackupInitial" x:Name="AutoBackupStatusText"
                                                Text="自动备份已关闭"
                                                Foreground="{ThemeResource MutedTextBrush}"
                                                FontSize="12" />
                                 </StackPanel>
-                                <ToggleSwitch x:Name="AutoBackupToggle"
+                                <ToggleSwitch x:Uid="AutoBackupToggle" local:LocalizationBindings.Key="AutoBackupToggle" x:Name="AutoBackupToggle"
                                               Grid.Column="1"
                                               OffContent="关"
                                               OnContent="开"
@@ -281,8 +346,8 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Spacing="4">
-                                        <TextBlock Text="定时备份" FontWeight="SemiBold" />
-                                        <TextBlock Text="按固定间隔保存当前桌面布局。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                                        <TextBlock x:Uid="ScheduledTitle" local:LocalizationBindings.Key="ScheduledTitle" Text="定时备份" FontWeight="SemiBold" />
+                                        <TextBlock x:Uid="ScheduledDescription" local:LocalizationBindings.Key="ScheduledDescription" Text="按固定间隔保存布局。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
                                     </StackPanel>
                                     <ToggleSwitch x:Name="ScheduledBackupToggle"
                                                   Grid.Column="1"
@@ -293,16 +358,16 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="180" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="备份间隔" VerticalAlignment="Center" />
+                                    <TextBlock x:Uid="IntervalLabel" local:LocalizationBindings.Key="IntervalLabel" Text="备份间隔" VerticalAlignment="Center" />
                                     <ComboBox x:Name="BackupIntervalComboBox"
                                               Grid.Column="1"
                                               SelectedIndex="2"
                                               SelectionChanged="BackupIntervalComboBox_SelectionChanged">
-                                        <ComboBoxItem Content="每 5 分钟" Tag="5" />
-                                        <ComboBoxItem Content="每 15 分钟" Tag="15" />
-                                        <ComboBoxItem Content="每 30 分钟" Tag="30" />
-                                        <ComboBoxItem Content="每 1 小时" Tag="60" />
-                                        <ComboBoxItem Content="每 3 小时" Tag="180" />
+                                        <ComboBoxItem x:Uid="Interval5" local:LocalizationBindings.Key="Interval5" Content="每 5 分钟" Tag="5" />
+                                        <ComboBoxItem x:Uid="Interval15" local:LocalizationBindings.Key="Interval15" Content="每 15 分钟" Tag="15" />
+                                        <ComboBoxItem x:Uid="Interval30" local:LocalizationBindings.Key="Interval30" Content="每 30 分钟" Tag="30" />
+                                        <ComboBoxItem x:Uid="Interval60" local:LocalizationBindings.Key="Interval60" Content="每 1 小时" Tag="60" />
+                                        <ComboBoxItem x:Uid="Interval180" local:LocalizationBindings.Key="Interval180" Content="每 3 小时" Tag="180" />
                                     </ComboBox>
                                 </Grid>
                             </StackPanel>
@@ -311,19 +376,75 @@
                         <Border Style="{StaticResource CardStyle}">
                             <StackPanel Spacing="12">
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="事件触发" FontWeight="SemiBold" />
-                                    <TextBlock Text="事件检测采用防抖处理，避免短时间内重复生成备份。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                                    <TextBlock x:Uid="EventTriggersTitle" local:LocalizationBindings.Key="EventTriggersTitle" Text="事件触发" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="EventTriggersDescription" local:LocalizationBindings.Key="EventTriggersDescription" Text="变化稳定后再备份，避免重复记录。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
                                 </StackPanel>
-                                <CheckBox x:Name="StartupTriggerCheckBox"
+                                <CheckBox x:Uid="StartupTrigger" local:LocalizationBindings.Key="StartupTrigger" x:Name="StartupTriggerCheckBox"
                                           Content="程序启动后备份"
                                           Click="AutoBackupSettings_Changed" />
-                                <CheckBox x:Name="DisplayTriggerCheckBox"
+                                <CheckBox x:Uid="DisplayTrigger" local:LocalizationBindings.Key="DisplayTrigger" x:Name="DisplayTriggerCheckBox"
                                           Content="显示器、分辨率或 DPI 变化后备份"
                                           Click="AutoBackupSettings_Changed" />
-                                <CheckBox x:Name="DesktopTriggerCheckBox"
+                                <CheckBox x:Uid="DesktopTrigger" local:LocalizationBindings.Key="DesktopTrigger" x:Name="DesktopTriggerCheckBox"
                                           Content="桌面图标增加、删除或位置变化后备份"
                                           Click="AutoBackupSettings_Changed" />
-                                <TextBlock Text="自动备份最多保留最近 20 份。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                                <Grid Margin="0,4,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="180" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="3" VerticalAlignment="Center">
+                                        <TextBlock x:Uid="RetentionLabel" local:LocalizationBindings.Key="RetentionLabel" Text="自动备份保留数量" />
+                                        <TextBlock x:Uid="RetentionText" local:LocalizationBindings.Key="RetentionText" Text="可保留 1–200 份；超出后自动删除最早记录。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                                    </StackPanel>
+                                    <NumberBox x:Name="AutomaticBackupRetentionNumberBox"
+                                               Grid.Column="1"
+                                               Minimum="1"
+                                               Maximum="200"
+                                               Value="20"
+                                               SmallChange="1"
+                                               SpinButtonPlacementMode="Inline"
+                                               ValidationMode="InvalidInputOverwritten"
+                                               ValueChanged="AutomaticBackupRetentionNumberBox_ValueChanged" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="16">
+                                <StackPanel Spacing="4">
+                                    <TextBlock x:Uid="BackgroundTitle" local:LocalizationBindings.Key="BackgroundTitle" Text="启动与后台" FontWeight="SemiBold" FontSize="16" />
+                                    <TextBlock x:Uid="BackgroundInitial" local:LocalizationBindings.Key="BackgroundInitial" x:Name="BackgroundModeStatusText"
+                                               Text="按需开启开机启动或通知区域后台运行。"
+                                               Foreground="{ThemeResource MutedTextBrush}"
+                                               FontSize="12" />
+                                </StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="3">
+                                        <TextBlock x:Uid="RunAtStartupTitle" local:LocalizationBindings.Key="RunAtStartupTitle" Text="开机启动" />
+                                        <TextBlock x:Uid="RunAtStartupDescription" local:LocalizationBindings.Key="RunAtStartupDescription" Text="随当前 Windows 用户登录启动。" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                                    </StackPanel>
+                                    <ToggleSwitch x:Name="RunAtStartupToggle"
+                                                  Grid.Column="1"
+                                                  Toggled="BackgroundSettings_Changed" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="3">
+                                        <TextBlock x:Uid="TrayModeTitle" local:LocalizationBindings.Key="TrayModeTitle" Text="关闭后在通知区域运行" />
+                                        <TextBlock x:Uid="TrayModeDescription" local:LocalizationBindings.Key="TrayModeDescription" Text="后台继续自动备份；从托盘重新打开或退出。" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                                    </StackPanel>
+                                    <ToggleSwitch x:Name="MinimizeToTrayToggle"
+                                                  Grid.Column="1"
+                                                  Toggled="BackgroundSettings_Changed" />
+                                </Grid>
                             </StackPanel>
                         </Border>
 
@@ -334,33 +455,119 @@
                                     <ColumnDefinition Width="220" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="应用主题" FontWeight="SemiBold" />
-                                    <TextBlock Text="选择浅色、深色或跟随 Windows。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                                    <TextBlock x:Uid="ThemeTitle" local:LocalizationBindings.Key="ThemeTitle" Text="应用主题" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="ThemeDescription" local:LocalizationBindings.Key="ThemeDescription" Text="选择界面明暗模式。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
                                 </StackPanel>
                                 <ComboBox x:Name="ThemeComboBox" Grid.Column="1" SelectedIndex="0" SelectionChanged="ThemeComboBox_SelectionChanged">
-                                    <ComboBoxItem Content="跟随系统" Tag="Default" />
-                                    <ComboBoxItem Content="浅色" Tag="Light" />
-                                    <ComboBoxItem Content="深色" Tag="Dark" />
+                                    <ComboBoxItem x:Uid="ThemeSystem" local:LocalizationBindings.Key="ThemeSystem" Content="跟随系统" Tag="Default" />
+                                    <ComboBoxItem x:Uid="ThemeLight" local:LocalizationBindings.Key="ThemeLight" Content="浅色" Tag="Light" />
+                                    <ComboBoxItem x:Uid="ThemeDark" local:LocalizationBindings.Key="ThemeDark" Content="深色" Tag="Dark" />
                                 </ComboBox>
                             </Grid>
                         </Border>
 
                         <Border Style="{StaticResource CardStyle}">
-                            <StackPanel Spacing="10">
-                                <TextBlock Text="数据位置" FontWeight="SemiBold" />
-                                <TextBlock x:Name="StoragePathText" TextWrapping="Wrap" Foreground="{ThemeResource MutedTextBrush}" FontFamily="Consolas" FontSize="12" />
-                                <TextBlock Text="Demo 采用原子写入方式保存 JSON；损坏的数据文件会被自动隔离。" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
-                            </StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="220" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="4">
+                                    <TextBlock x:Uid="LanguageTitle" local:LocalizationBindings.Key="LanguageTitle" Text="界面语言" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="LanguageDescription" local:LocalizationBindings.Key="LanguageDescription" Text="切换后应用会自动重启。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                                </StackPanel>
+                                <ComboBox x:Name="LanguageComboBox" Grid.Column="1" SelectionChanged="LanguageComboBox_SelectionChanged">
+                                    <ComboBoxItem x:Uid="LanguageSystem" local:LocalizationBindings.Key="LanguageSystem" Content="跟随系统" Tag="system" />
+                                    <ComboBoxItem x:Uid="LanguageChinese" local:LocalizationBindings.Key="LanguageChinese" Content="简体中文" Tag="zh-CN" />
+                                    <ComboBoxItem x:Uid="LanguageEnglish" local:LocalizationBindings.Key="LanguageEnglish" Content="English" Tag="en-US" />
+                                </ComboBox>
+                            </Grid>
                         </Border>
 
                         <Border Style="{StaticResource CardStyle}">
                             <Grid>
                                 <StackPanel Spacing="4">
-                                    <TextBlock Text="恢复前安全备份" FontWeight="SemiBold" />
-                                    <TextBlock Text="第一版中始终开启，避免误恢复后无法回退。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                                    <TextBlock x:Uid="SafetyBackupTitle" local:LocalizationBindings.Key="SafetyBackupTitle" Text="恢复前备份" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="SafetyBackupDescription" local:LocalizationBindings.Key="SafetyBackupDescription" Text="始终开启，防止误恢复后无法撤回。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
                                 </StackPanel>
                                 <ToggleSwitch IsOn="True" IsEnabled="False" HorizontalAlignment="Right" />
                             </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <ScrollViewer x:Name="AboutSection"
+                              Visibility="Collapsed"
+                              Padding="32,28,32,36"
+                              HorizontalScrollMode="Disabled"
+                              HorizontalScrollBarVisibility="Disabled"
+                              HorizontalContentAlignment="Stretch">
+                    <StackPanel HorizontalAlignment="Stretch" Spacing="20">
+                        <StackPanel Spacing="5">
+                            <TextBlock x:Uid="AboutTitle" local:LocalizationBindings.Key="AboutTitle" Text="关于" Style="{ThemeResource TitleTextBlockStyle}" />
+                            <TextBlock x:Uid="AboutSubtitle" local:LocalizationBindings.Key="AboutSubtitle" Text="版本、数据和隐私信息。" Foreground="{ThemeResource MutedTextBrush}" />
+                        </StackPanel>
+
+                        <Border Style="{StaticResource CardStyle}" Padding="28">
+                            <Grid ColumnSpacing="20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="72" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image Source="Assets/DeskSnapshot_96x96.png" Width="64" Height="64" Stretch="Uniform" />
+                                <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
+                                    <TextBlock Text="DeskSnapshot" FontSize="24" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="AboutTagline" local:LocalizationBindings.Key="AboutTagline" Text="轻量、离线的桌面图标布局备份工具" Foreground="{ThemeResource MutedTextBrush}" />
+                                    <TextBlock x:Uid="VersionInitial" local:LocalizationBindings.Key="VersionInitial" x:Name="AppVersionText" Text="版本 1.0.0" FontSize="12" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="42" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Width="38" Height="38" CornerRadius="19" Background="{ThemeResource AccentFillColorSecondaryBrush}" VerticalAlignment="Top">
+                                    <FontIcon Glyph="&#xE72E;" FontSize="16" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                </Border>
+                                <StackPanel Grid.Column="1" Spacing="7">
+                                    <TextBlock x:Uid="LocalStorageTitle" local:LocalizationBindings.Key="LocalStorageTitle" Text="本地离线存储" FontWeight="SemiBold" FontSize="16" />
+                                    <TextBlock x:Uid="LocalStorageDescription" local:LocalizationBindings.Key="LocalStorageDescription" Text="布局和设置只保存在本机，不会上传。" TextWrapping="Wrap" Foreground="{ThemeResource MutedTextBrush}" />
+                                    <TextBlock x:Uid="BackupDataLocation" local:LocalizationBindings.Key="BackupDataLocation" Text="备份数据位置" Margin="0,5,0,0" FontSize="12" FontWeight="SemiBold" />
+                                    <TextBlock x:Name="StoragePathText" TextWrapping="Wrap" Foreground="{ThemeResource MutedTextBrush}" FontFamily="Consolas" FontSize="12" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource CardStyle}">
+                                <StackPanel Spacing="7">
+                                    <FontIcon Glyph="&#xE73E;" Foreground="#0F9D75" HorizontalAlignment="Left" />
+                                    <TextBlock x:Uid="SafeWriteTitle" local:LocalizationBindings.Key="SafeWriteTitle" Text="安全写入" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="SafeWriteDescription" local:LocalizationBindings.Key="SafeWriteDescription" Text="JSON 原子写入，损坏文件会自动隔离。" TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                                <StackPanel Spacing="7">
+                                    <FontIcon Glyph="&#xE777;" Foreground="#1667D9" HorizontalAlignment="Left" />
+                                    <TextBlock x:Uid="RecoveryProtectionTitle" local:LocalizationBindings.Key="RecoveryProtectionTitle" Text="恢复保护" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="RecoveryProtectionDescription" local:LocalizationBindings.Key="RecoveryProtectionDescription" Text="恢复前保存当前桌面，便于撤回。" TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="8">
+                                <TextBlock x:Uid="TechnicalInfoTitle" local:LocalizationBindings.Key="TechnicalInfoTitle" Text="兼容性" FontWeight="SemiBold" />
+                                <TextBlock x:Uid="TechnicalInfoStack" local:LocalizationBindings.Key="TechnicalInfoStack" Text="Windows 10/11 · x64" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                                <TextBlock x:Uid="TechnicalInfoDemo" local:LocalizationBindings.Key="TechnicalInfoDemo" Text="支持由 Windows 资源管理器管理的标准桌面。" TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                            </StackPanel>
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
@@ -369,7 +576,7 @@
                     <Border Background="{ThemeResource CardBrush}" CornerRadius="14" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="14">
                             <ProgressRing IsActive="True" Width="24" Height="24" />
-                            <TextBlock x:Name="BusyText" Text="正在处理桌面布局…" VerticalAlignment="Center" />
+                            <TextBlock x:Uid="BusyInitial" local:LocalizationBindings.Key="BusyInitial" x:Name="BusyText" Text="正在处理桌面布局…" VerticalAlignment="Center" />
                         </StackPanel>
                     </Border>
                 </Grid>
