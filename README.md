@@ -2,7 +2,7 @@
 
 DeskSnapshot 是一个使用 WinUI 3 构建的 Windows 桌面图标位置备份工具。
 
-应用图标的 SVG、ICO 和多尺寸 PNG 源文件保存在 `desksnapshot_pack/`。
+程序运行所需的 ICO 和 PNG 保存在 `src/DeskSnapshot/Assets/`。设计源图包 `desksnapshot_pack/` 仅在本地保留，不纳入 Git。
 
 当前 Demo 已包含：
 
