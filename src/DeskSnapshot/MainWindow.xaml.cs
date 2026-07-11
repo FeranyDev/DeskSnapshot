@@ -38,8 +38,10 @@ public sealed partial class MainWindow : Window
     private string? _lastDisplayFingerprint;
     private string? _pendingDesktopFingerprint;
     private int _pendingDesktopStability;
+    private DesktopEnvironment? _currentEnvironment;
 
     public ObservableCollection<BackupTimelineGroup> BackupTimelineGroups { get; } = [];
+    public ObservableCollection<DisplayProfileListItem> DisplayProfiles { get; } = [];
     public CollectionViewSource BackupTimelineSource { get; } = new() { IsSourceGrouped = true };
 
     public MainWindow()
@@ -133,6 +135,7 @@ public sealed partial class MainWindow : Window
     private void RefreshEnvironmentSummary()
     {
         var environment = _layoutService.ReadEnvironment();
+        _currentEnvironment = environment;
         HeroEnvironmentText.Text = $"{environment.VirtualWidth} × {environment.VirtualHeight}  ·  {LocalizationService.Format("MonitorCountFormat", environment.MonitorCount)}";
         HeroDpiText.Text = $"DPI {environment.Dpi}  ·  {environment.Dpi / 96d:P0}";
         MonitorCountText.Text = environment.MonitorCount.ToString();
@@ -141,6 +144,8 @@ public sealed partial class MainWindow : Window
         {
             App.Log($"Monitor: {monitor.Name}, device={monitor.DeviceName}, bounds={monitor.Left},{monitor.Top},{monitor.Width}x{monitor.Height}, primary={monitor.IsPrimary}");
         }
+
+        RefreshDisplayProfiles();
     }
 
     private void RefreshBackupItems()
@@ -177,6 +182,54 @@ public sealed partial class MainWindow : Window
         var latest = _backups.OrderByDescending(item => item.CreatedAt).FirstOrDefault();
         LastBackupText.Text = latest is null ? LocalizationService.Get("NoBackupsYet") : latest.CreatedAt.LocalDateTime.ToString("g");
         HeroIconCountText.Text = latest is null ? LocalizationService.Get("WaitingFirstBackup") : LocalizationService.Format("LatestIconCountFormat", latest.Icons.Count);
+        RefreshDisplayProfiles();
+    }
+
+    private void RefreshDisplayProfiles()
+    {
+        DisplayProfiles.Clear();
+        var environment = _currentEnvironment;
+        var currentFingerprint = environment is null
+            ? string.Empty
+            : DisplayTopologyService.CreateFingerprint(environment);
+
+        foreach (var backup in _backups
+                     .Where(item => !string.IsNullOrWhiteSpace(item.DisplayProfileName))
+                     .OrderByDescending(item => string.Equals(item.DisplayTopologyFingerprint, currentFingerprint, StringComparison.OrdinalIgnoreCase))
+                     .ThenBy(item => item.DisplayProfileName, StringComparer.CurrentCultureIgnoreCase))
+        {
+            if (string.IsNullOrWhiteSpace(backup.DisplayTopologyFingerprint))
+            {
+                backup.DisplayTopologyFingerprint = DisplayTopologyService.CreateFingerprint(backup.Environment);
+            }
+
+            DisplayProfiles.Add(new DisplayProfileListItem
+            {
+                Backup = backup,
+                IsCurrentMatch = string.Equals(backup.DisplayTopologyFingerprint, currentFingerprint, StringComparison.OrdinalIgnoreCase)
+            });
+        }
+
+        EmptyProfilesText.Visibility = DisplayProfiles.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        DisplayProfilesList.Visibility = DisplayProfiles.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+
+        if (environment is null)
+        {
+            return;
+        }
+
+        CurrentTopologySummaryText.Text = LocalizationService.Format(
+            "CurrentTopologySummaryFormat",
+            environment.MonitorCount,
+            environment.VirtualWidth,
+            environment.VirtualHeight,
+            environment.Dpi);
+        CurrentTopologyFingerprintText.Text = currentFingerprint;
+        var matched = DisplayProfiles.FirstOrDefault(item => item.IsCurrentMatch);
+        MatchedProfileBadge.Visibility = matched is null ? Visibility.Collapsed : Visibility.Visible;
+        MatchedProfileText.Text = matched is null
+            ? string.Empty
+            : LocalizationService.Format("MatchedProfileFormat", matched.Name);
     }
 
     private static void AppendBackupTree(
@@ -468,6 +521,7 @@ public sealed partial class MainWindow : Window
 
         var singleSelection = selectedItems.Count == 1 ? selectedItems[0] : null;
         RestoreBackupButton.IsEnabled = singleSelection is not null;
+        SaveAsProfileButton.IsEnabled = GetProfileSourceSelection() is not null;
         DeleteBackupButton.IsEnabled = selectedItems.Count > 0;
         ViewBackupButton.IsEnabled = singleSelection is not null;
         SelectionHintText.Text = selectedItems.Count switch
@@ -479,6 +533,115 @@ public sealed partial class MainWindow : Window
     }
 
     private void ViewBackup_Click(object sender, RoutedEventArgs e) => OpenSelectedBackupPreview();
+
+    private async void SaveAsProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (GetProfileSourceSelection() is not BackupListItem selected)
+        {
+            return;
+        }
+
+        var backup = selected.Backup;
+        var defaultName = string.IsNullOrWhiteSpace(backup.DisplayProfileName)
+            ? backup.Name
+            : backup.DisplayProfileName;
+        var nameBox = new TextBox
+        {
+            Header = LocalizationService.Get("ProfileNameHeader"),
+            Text = defaultName,
+            SelectionStart = 0,
+            SelectionLength = defaultName.Length,
+            MaxLength = 80
+        };
+        var content = new StackPanel { Spacing = 12 };
+        content.Children.Add(new TextBlock
+        {
+            Text = LocalizationService.Get("SaveAsProfileDescription"),
+            TextWrapping = TextWrapping.Wrap
+        });
+        content.Children.Add(nameBox);
+
+        var dialog = new ContentDialog
+        {
+            XamlRoot = RootGrid.XamlRoot,
+            Title = LocalizationService.Get("SaveAsProfileTitle"),
+            Content = content,
+            PrimaryButtonText = LocalizationService.Get("SaveProfile"),
+            CloseButtonText = LocalizationService.Get("Cancel"),
+            DefaultButton = ContentDialogButton.Primary
+        };
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary || string.IsNullOrWhiteSpace(nameBox.Text))
+        {
+            return;
+        }
+
+        backup.SchemaVersion = Math.Max(backup.SchemaVersion, 3);
+        backup.DisplayProfileName = nameBox.Text.Trim();
+        backup.DisplayTopologyFingerprint = DisplayTopologyService.CreateFingerprint(backup.Environment);
+        await _store.SaveAsync(_backups);
+        RefreshDisplayProfiles();
+        ShowNotice(
+            LocalizationService.Get("ProfileSaved"),
+            LocalizationService.Format("ProfileSavedMessage", backup.DisplayProfileName),
+            InfoBarSeverity.Success);
+    }
+
+    private void DisplayProfilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var hasSelection = GetSelectedProfile() is not null;
+        RemoveProfileButton.IsEnabled = hasSelection;
+        ViewProfileButton.IsEnabled = hasSelection;
+        RestoreProfileButton.IsEnabled = hasSelection;
+    }
+
+    private async void RemoveProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (GetSelectedProfile() is not DisplayProfileListItem selected)
+        {
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            XamlRoot = RootGrid.XamlRoot,
+            Title = LocalizationService.Get("RemoveProfileTitle"),
+            Content = LocalizationService.Format("RemoveProfileConfirm", selected.Name),
+            PrimaryButtonText = LocalizationService.Get("RemoveProfile"),
+            CloseButtonText = LocalizationService.Get("Cancel"),
+            DefaultButton = ContentDialogButton.Close
+        };
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        selected.Backup.DisplayProfileName = string.Empty;
+        selected.Backup.DisplayTopologyFingerprint = string.Empty;
+        await _store.SaveAsync(_backups);
+        RefreshDisplayProfiles();
+        ShowNotice(LocalizationService.Get("ProfileRemoved"), LocalizationService.Get("ProfileRemovedMessage"), InfoBarSeverity.Success);
+    }
+
+    private void ViewProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (GetSelectedProfile() is DisplayProfileListItem selected)
+        {
+            OpenBackupPreview(new BackupListItem { Backup = selected.Backup });
+        }
+    }
+
+    private async void RestoreProfile_Click(object sender, RoutedEventArgs e)
+    {
+        if (GetSelectedProfile() is DisplayProfileListItem selected)
+        {
+            await RestoreBackupAsync(selected.Backup, RootGrid.XamlRoot);
+        }
+    }
+
+    private DisplayProfileListItem? GetSelectedProfile() =>
+        DisplayProfilesList.SelectedItem as DisplayProfileListItem;
 
     private void BackupContent_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
@@ -521,6 +684,21 @@ public sealed partial class MainWindow : Window
         return selectedItems.Count == 1 ? selectedItems[0] : null;
     }
 
+    private BackupListItem? GetProfileSourceSelection()
+    {
+        var selectedItems = BackupsList.SelectedItems.OfType<BackupListItem>().ToList();
+        if (selectedItems.Count == 1)
+        {
+            return selectedItems[0];
+        }
+
+        return selectedItems.FirstOrDefault(candidate =>
+        {
+            var descendantIds = GetBackupDescendants(candidate).Select(item => item.Backup.Id).ToHashSet();
+            return selectedItems.All(item => item == candidate || descendantIds.Contains(item.Backup.Id));
+        });
+    }
+
     private IReadOnlyList<BackupListItem> GetBackupDescendants(BackupListItem parent)
     {
         var displayedItems = BackupTimelineGroups.SelectMany(group => group).ToList();
@@ -537,6 +715,7 @@ public sealed partial class MainWindow : Window
         ShowSection(tag switch
         {
             "backups" => BackupsSection,
+            "profiles" => ProfilesSection,
             "settings" => SettingsSection,
             "about" => AboutSection,
             _ => DashboardSection
@@ -553,6 +732,7 @@ public sealed partial class MainWindow : Window
     {
         DashboardSection.Visibility = section == DashboardSection ? Visibility.Visible : Visibility.Collapsed;
         BackupsSection.Visibility = section == BackupsSection ? Visibility.Visible : Visibility.Collapsed;
+        ProfilesSection.Visibility = section == ProfilesSection ? Visibility.Visible : Visibility.Collapsed;
         SettingsSection.Visibility = section == SettingsSection ? Visibility.Visible : Visibility.Collapsed;
         AboutSection.Visibility = section == AboutSection ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -859,6 +1039,7 @@ public sealed partial class MainWindow : Window
             if (_settings.BackupOnDisplayChange && displayFingerprint != _lastDisplayFingerprint)
             {
                 await SaveAutomaticBackupCoreAsync("display-change", snapshot);
+                NotifyMatchedProfile(snapshot.Environment);
                 return;
             }
 
@@ -976,7 +1157,7 @@ public sealed partial class MainWindow : Window
     }
 
     private static string GetDisplayFingerprint(DesktopEnvironment environment) =>
-        $"{environment.VirtualLeft},{environment.VirtualTop},{environment.VirtualWidth},{environment.VirtualHeight},{environment.Dpi},{environment.MonitorCount}";
+        DisplayTopologyService.CreateFingerprint(environment);
 
     private static string GetDesktopFingerprint(DesktopLayoutBackup snapshot)
     {
@@ -1096,10 +1277,33 @@ public sealed partial class MainWindow : Window
 
     private void ShowNotice(string title, string message, InfoBarSeverity severity)
     {
+        ActionInfoBar.ActionButton = null;
         ActionInfoBar.Title = title;
         ActionInfoBar.Message = message;
         ActionInfoBar.Severity = severity;
         ActionInfoBar.IsOpen = true;
+    }
+
+    private void NotifyMatchedProfile(DesktopEnvironment environment)
+    {
+        _currentEnvironment = environment;
+        RefreshDisplayProfiles();
+        var matched = DisplayProfiles.FirstOrDefault(item => item.IsCurrentMatch);
+        if (matched is null)
+        {
+            return;
+        }
+
+        var message = LocalizationService.Format("MatchedProfileSuggestion", matched.Name);
+        ShowNotice(LocalizationService.Get("MatchedProfileTitle"), message, InfoBarSeverity.Informational);
+        var openButton = new Button { Content = LocalizationService.Get("OpenProfiles") };
+        openButton.Click += (_, _) =>
+        {
+            AppNavigationView.SelectedItem = ProfilesNavItem;
+            ShowSection(ProfilesSection);
+        };
+        ActionInfoBar.ActionButton = openButton;
+        _trayIconService?.ShowNotification(LocalizationService.Get("MatchedProfileTitle"), message);
     }
 
     [DllImport("user32.dll")]

@@ -13,7 +13,7 @@ public static class BackupRetentionService
     {
         var retention = Math.Clamp(requestedRetention, MinimumRetention, MaximumRetention);
         var expired = backups
-            .Where(backup => backup.IsAutomaticBackup)
+            .Where(backup => backup.IsAutomaticBackup && string.IsNullOrWhiteSpace(backup.DisplayProfileName))
             .OrderByDescending(backup => backup.CreatedAt)
             .Skip(retention)
             .ToList();

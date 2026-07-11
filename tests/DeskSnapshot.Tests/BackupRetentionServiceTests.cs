@@ -70,4 +70,21 @@ public sealed class BackupRetentionServiceTests
         Assert.AreEqual(0, removed.Count);
         Assert.AreEqual(2, backups.Count);
     }
+
+    [TestMethod]
+    public void TrimAutomaticBackups_PreservesAutomaticBackupUsedAsDisplayProfile()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var profile = TestLayoutFactory.Backup(createdAt: now.AddHours(-2), automatic: true);
+        profile.DisplayProfileName = "Docked";
+        var old = TestLayoutFactory.Backup(createdAt: now.AddHours(-1), automatic: true);
+        var newest = TestLayoutFactory.Backup(createdAt: now, automatic: true);
+        var backups = new[] { profile, old, newest }.ToList();
+
+        var removed = BackupRetentionService.TrimAutomaticBackups(backups, 1);
+
+        CollectionAssert.AreEqual(new[] { old.Id }, removed.Select(item => item.Id).ToArray());
+        Assert.IsTrue(backups.Contains(profile));
+        Assert.IsTrue(backups.Contains(newest));
+    }
 }

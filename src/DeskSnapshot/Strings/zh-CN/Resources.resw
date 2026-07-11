@@ -208,4 +208,32 @@
   <data name="LayoutBufferAllocationFailed" xml:space="preserve"><value>无法分配桌面布局缓冲区。</value></data>
   <data name="LayoutBufferWriteFailed" xml:space="preserve"><value>无法写入桌面布局缓冲区。</value></data>
   <data name="LayoutBufferReadFailed" xml:space="preserve"><value>无法读取桌面布局缓冲区。</value></data>
+  <data name="NavProfiles.Content" xml:space="preserve"><value>显示器档案</value></data>
+  <data name="ProfilesTitle.Text" xml:space="preserve"><value>显示器布局配置档案</value></data>
+  <data name="ProfilesSubtitle.Text" xml:space="preserve"><value>为常用显示器组合保存布局；匹配后只提示，不会自动恢复。</value></data>
+  <data name="SaveAsProfile.Content" xml:space="preserve"><value>保存为档案</value></data>
+  <data name="CurrentTopologyTitle.Text" xml:space="preserve"><value>当前显示器组合</value></data>
+  <data name="EmptyProfiles.Text" xml:space="preserve"><value>暂无配置档案。请在备份记录中选择一份备份并保存为档案。</value></data>
+  <data name="ProfileMatchedBadge.Text" xml:space="preserve"><value>当前匹配</value></data>
+  <data name="ProfileSelectionHint.Text" xml:space="preserve"><value>选择档案后可预览或恢复；恢复前仍会创建安全备份。</value></data>
+  <data name="RemoveProfile.Content" xml:space="preserve"><value>移除档案</value></data>
+  <data name="ViewProfile.Content" xml:space="preserve"><value>查看布局</value></data>
+  <data name="RestoreProfile.Text" xml:space="preserve"><value>恢复此档案</value></data>
+  <data name="ProfileNameHeader" xml:space="preserve"><value>档案名称</value></data>
+  <data name="SaveAsProfileTitle" xml:space="preserve"><value>保存显示器布局档案</value></data>
+  <data name="SaveAsProfileDescription" xml:space="preserve"><value>此档案会记住显示器组合、排列和这份备份中的图标位置。</value></data>
+  <data name="SaveProfile" xml:space="preserve"><value>保存档案</value></data>
+  <data name="ProfileSaved" xml:space="preserve"><value>配置档案已保存</value></data>
+  <data name="ProfileSavedMessage" xml:space="preserve"><value>“{0}”将在相同显示器组合出现时被推荐。</value></data>
+  <data name="ProfileSavedAtFormat" xml:space="preserve"><value>保存于 {0}</value></data>
+  <data name="ProfileSummaryFormat" xml:space="preserve"><value>{0} 台显示器 · {1} × {2} · {3} 个图标</value></data>
+  <data name="CurrentTopologySummaryFormat" xml:space="preserve"><value>{0} 台显示器 · {1} × {2} · DPI {3}</value></data>
+  <data name="MatchedProfileFormat" xml:space="preserve"><value>匹配：{0}</value></data>
+  <data name="RemoveProfileTitle" xml:space="preserve"><value>移除配置档案</value></data>
+  <data name="RemoveProfileConfirm" xml:space="preserve"><value>确定移除“{0}”吗？原始备份仍会保留。</value></data>
+  <data name="ProfileRemoved" xml:space="preserve"><value>配置档案已移除</value></data>
+  <data name="ProfileRemovedMessage" xml:space="preserve"><value>原始备份没有被删除。</value></data>
+  <data name="MatchedProfileTitle" xml:space="preserve"><value>找到匹配的显示器档案</value></data>
+  <data name="MatchedProfileSuggestion" xml:space="preserve"><value>当前显示器组合匹配“{0}”。可打开档案检查后恢复。</value></data>
+  <data name="OpenProfiles" xml:space="preserve"><value>查看档案</value></data>
 </root>

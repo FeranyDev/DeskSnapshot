@@ -208,4 +208,32 @@
   <data name="LayoutBufferAllocationFailed" xml:space="preserve"><value>Could not allocate the desktop layout buffer.</value></data>
   <data name="LayoutBufferWriteFailed" xml:space="preserve"><value>Could not write to the desktop layout buffer.</value></data>
   <data name="LayoutBufferReadFailed" xml:space="preserve"><value>Could not read the desktop layout buffer.</value></data>
+  <data name="NavProfiles.Content" xml:space="preserve"><value>Display profiles</value></data>
+  <data name="ProfilesTitle.Text" xml:space="preserve"><value>Display layout profiles</value></data>
+  <data name="ProfilesSubtitle.Text" xml:space="preserve"><value>Save layouts for familiar monitor setups. Matches are suggested and never restored automatically.</value></data>
+  <data name="SaveAsProfile.Content" xml:space="preserve"><value>Save as profile</value></data>
+  <data name="CurrentTopologyTitle.Text" xml:space="preserve"><value>Current monitor setup</value></data>
+  <data name="EmptyProfiles.Text" xml:space="preserve"><value>No display profiles yet. Select a backup under Backup history and save it as a profile.</value></data>
+  <data name="ProfileMatchedBadge.Text" xml:space="preserve"><value>Current match</value></data>
+  <data name="ProfileSelectionHint.Text" xml:space="preserve"><value>Select a profile to preview or restore it. A safety backup is still created before restoring.</value></data>
+  <data name="RemoveProfile.Content" xml:space="preserve"><value>Remove profile</value></data>
+  <data name="ViewProfile.Content" xml:space="preserve"><value>View layout</value></data>
+  <data name="RestoreProfile.Text" xml:space="preserve"><value>Restore profile</value></data>
+  <data name="ProfileNameHeader" xml:space="preserve"><value>Profile name</value></data>
+  <data name="SaveAsProfileTitle" xml:space="preserve"><value>Save display layout profile</value></data>
+  <data name="SaveAsProfileDescription" xml:space="preserve"><value>This profile remembers the monitor setup, arrangement, and icon positions in this backup.</value></data>
+  <data name="SaveProfile" xml:space="preserve"><value>Save profile</value></data>
+  <data name="ProfileSaved" xml:space="preserve"><value>Display profile saved</value></data>
+  <data name="ProfileSavedMessage" xml:space="preserve"><value>“{0}” will be suggested when the same monitor setup appears.</value></data>
+  <data name="ProfileSavedAtFormat" xml:space="preserve"><value>Saved {0}</value></data>
+  <data name="ProfileSummaryFormat" xml:space="preserve"><value>{0} monitor(s) · {1} × {2} · {3} icons</value></data>
+  <data name="CurrentTopologySummaryFormat" xml:space="preserve"><value>{0} monitor(s) · {1} × {2} · DPI {3}</value></data>
+  <data name="MatchedProfileFormat" xml:space="preserve"><value>Matches: {0}</value></data>
+  <data name="RemoveProfileTitle" xml:space="preserve"><value>Remove display profile</value></data>
+  <data name="RemoveProfileConfirm" xml:space="preserve"><value>Remove “{0}” as a profile? Its original backup will be kept.</value></data>
+  <data name="ProfileRemoved" xml:space="preserve"><value>Display profile removed</value></data>
+  <data name="ProfileRemovedMessage" xml:space="preserve"><value>The original backup was not deleted.</value></data>
+  <data name="MatchedProfileTitle" xml:space="preserve"><value>Matching display profile found</value></data>
+  <data name="MatchedProfileSuggestion" xml:space="preserve"><value>The current monitor setup matches “{0}”. Open the profile to review it before restoring.</value></data>
+  <data name="OpenProfiles" xml:space="preserve"><value>View profiles</value></data>
 </root>

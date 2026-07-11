@@ -46,6 +46,8 @@ public sealed class BackupStoreTests
         parent.Name = "Parent";
         parent.Note = "Note";
         parent.TriggerReason = "manual";
+        parent.DisplayProfileName = "Office";
+        parent.DisplayTopologyFingerprint = "DT1-0123456789ABCDEF0123";
         var child = TestLayoutFactory.Backup(safety: true, relatedId: parent.Id);
         child.Name = "Safety";
         var store = new BackupStore(_filePath);
@@ -58,6 +60,8 @@ public sealed class BackupStoreTests
         var loadedChild = result.Single(item => item.Id == child.Id);
         Assert.AreEqual("Parent", loadedParent.Name);
         Assert.AreEqual("Note", loadedParent.Note);
+        Assert.AreEqual("Office", loadedParent.DisplayProfileName);
+        Assert.AreEqual("DT1-0123456789ABCDEF0123", loadedParent.DisplayTopologyFingerprint);
         Assert.AreEqual("DISPLAY-A", loadedParent.Environment.Monitors.Single().Id);
         Assert.AreEqual("Example", loadedParent.Icons.Single().Name);
         Assert.AreEqual(120, loadedParent.Icons.Single().X);

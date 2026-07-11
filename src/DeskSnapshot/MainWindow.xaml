@@ -44,6 +44,11 @@
                         <FontIcon Glyph="&#xE8C8;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem x:Uid="NavProfiles" local:LocalizationBindings.Key="NavProfiles" x:Name="ProfilesNavItem" Content="显示器档案" Tag="profiles">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7F4;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Uid="NavSettings" local:LocalizationBindings.Key="NavSettings" x:Name="SettingsNavItem" Content="设置" Tag="settings">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE713;" />
@@ -294,11 +299,113 @@
                         <TextBlock x:Uid="SelectionHint" local:LocalizationBindings.Key="SelectionHint" x:Name="SelectionHintText" Text="选择记录后可预览、恢复或删除" Foreground="{ThemeResource MutedTextBrush}" VerticalAlignment="Center" />
                         <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
                             <Button x:Uid="DeleteBackup" local:LocalizationBindings.Key="DeleteBackup" x:Name="DeleteBackupButton" Content="删除" IsEnabled="False" Click="DeleteBackup_Click" />
+                            <Button x:Uid="SaveAsProfile" local:LocalizationBindings.Key="SaveAsProfile" x:Name="SaveAsProfileButton" Content="保存为档案" IsEnabled="False" Click="SaveAsProfile_Click" />
                             <Button x:Uid="ViewBackup" local:LocalizationBindings.Key="ViewBackup" x:Name="ViewBackupButton" Content="查看" IsEnabled="False" Click="ViewBackup_Click" />
                             <Button x:Name="RestoreBackupButton" IsEnabled="False" Click="RestoreBackup_Click">
                                 <StackPanel Orientation="Horizontal" Spacing="7">
                                     <FontIcon Glyph="&#xE777;" FontSize="14" />
                                     <TextBlock x:Uid="RestoreBackupButton" local:LocalizationBindings.Key="RestoreBackupButton" Text="恢复布局" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="ProfilesSection" Visibility="Collapsed" Padding="32,28,32,30">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="18" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="18" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="16" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Spacing="5">
+                        <TextBlock x:Uid="ProfilesTitle" local:LocalizationBindings.Key="ProfilesTitle" Text="显示器布局配置档案" Style="{ThemeResource TitleTextBlockStyle}" />
+                        <TextBlock x:Uid="ProfilesSubtitle" local:LocalizationBindings.Key="ProfilesSubtitle" Text="为常用显示器组合保存布局；匹配后只提示，不会自动恢复。" Foreground="{ThemeResource MutedTextBrush}" />
+                    </StackPanel>
+
+                    <Border Grid.Row="2" CornerRadius="16" Padding="22" Background="{ThemeResource AccentFillColorSecondaryBrush}">
+                        <Grid ColumnSpacing="18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Width="46" Height="46" CornerRadius="23" Background="{ThemeResource AccentFillColorDefaultBrush}">
+                                <FontIcon Glyph="&#xE7F4;" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" FontSize="20" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                                <TextBlock x:Uid="CurrentTopologyTitle" local:LocalizationBindings.Key="CurrentTopologyTitle" Text="当前显示器组合" FontWeight="SemiBold" FontSize="16" />
+                                <TextBlock x:Name="CurrentTopologySummaryText" Foreground="{ThemeResource MutedTextBrush}" />
+                                <TextBlock x:Name="CurrentTopologyFingerprintText" FontFamily="Consolas" FontSize="11" Foreground="{ThemeResource MutedTextBrush}" />
+                            </StackPanel>
+                            <Border Grid.Column="2" x:Name="MatchedProfileBadge" Visibility="Collapsed" CornerRadius="12" Padding="12,6" Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}" VerticalAlignment="Center">
+                                <TextBlock x:Name="MatchedProfileText" Foreground="{ThemeResource SystemFillColorSuccessBrush}" FontWeight="SemiBold" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="4" Style="{StaticResource CardStyle}" Padding="0">
+                        <Grid>
+                            <TextBlock x:Uid="EmptyProfiles" local:LocalizationBindings.Key="EmptyProfiles" x:Name="EmptyProfilesText" Text="暂无配置档案。请在备份记录中选择一份备份并保存为档案。" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="420" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{ThemeResource MutedTextBrush}" />
+                            <ListView x:Name="DisplayProfilesList"
+                                      ItemsSource="{x:Bind DisplayProfiles}"
+                                      SelectionMode="Single"
+                                      SelectionChanged="DisplayProfilesList_SelectionChanged"
+                                      Margin="8"
+                                      HorizontalContentAlignment="Stretch">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        <Setter Property="Padding" Value="16,14" />
+                                        <Setter Property="Margin" Value="6,2" />
+                                        <Setter Property="CornerRadius" Value="10" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnSpacing="14" MinHeight="70">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="42" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="38" Height="38" CornerRadius="19" Background="{ThemeResource AccentFillColorSecondaryBrush}" VerticalAlignment="Top">
+                                                <FontIcon Glyph="&#xE7F4;" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" FontSize="16" />
+                                            </Border>
+                                            <StackPanel Grid.Column="1" Spacing="4">
+                                                <StackPanel Orientation="Horizontal" Spacing="9">
+                                                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" />
+                                                    <Border Visibility="{Binding MatchVisibility}" CornerRadius="10" Padding="8,2" Background="{ThemeResource SystemFillColorSuccessBackgroundBrush}">
+                                                        <TextBlock x:Uid="ProfileMatchedBadge" local:LocalizationBindings.Key="ProfileMatchedBadge" Text="当前匹配" FontSize="11" Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Summary}" Foreground="{ThemeResource MutedTextBrush}" />
+                                                <TextBlock Text="{Binding MonitorNames}" TextTrimming="CharacterEllipsis" FontSize="11" Foreground="{ThemeResource MutedTextBrush}" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Spacing="5" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding SavedAt}" FontSize="11" Foreground="{ThemeResource MutedTextBrush}" HorizontalAlignment="Right" />
+                                                <TextBlock Text="{Binding Fingerprint}" FontFamily="Consolas" FontSize="10" Foreground="{ThemeResource MutedTextBrush}" HorizontalAlignment="Right" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="6">
+                        <TextBlock x:Uid="ProfileSelectionHint" local:LocalizationBindings.Key="ProfileSelectionHint" Text="选择档案后可预览或恢复；恢复前仍会创建安全备份。" Foreground="{ThemeResource MutedTextBrush}" VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                            <Button x:Uid="RemoveProfile" local:LocalizationBindings.Key="RemoveProfile" x:Name="RemoveProfileButton" Content="移除档案" IsEnabled="False" Click="RemoveProfile_Click" />
+                            <Button x:Uid="ViewProfile" local:LocalizationBindings.Key="ViewProfile" x:Name="ViewProfileButton" Content="查看布局" IsEnabled="False" Click="ViewProfile_Click" />
+                            <Button x:Name="RestoreProfileButton" IsEnabled="False" Click="RestoreProfile_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="7">
+                                    <FontIcon Glyph="&#xE777;" FontSize="14" />
+                                    <TextBlock x:Uid="RestoreProfile" local:LocalizationBindings.Key="RestoreProfile" Text="恢复此档案" />
                                 </StackPanel>
                             </Button>
                         </StackPanel>

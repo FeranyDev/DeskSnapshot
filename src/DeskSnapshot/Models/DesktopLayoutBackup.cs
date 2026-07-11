@@ -11,6 +11,8 @@ public sealed class DesktopLayoutBackup
     public bool IsAutomaticBackup { get; set; }
     public Guid? RelatedBackupId { get; set; }
     public string TriggerReason { get; set; } = string.Empty;
+    public string DisplayProfileName { get; set; } = string.Empty;
+    public string DisplayTopologyFingerprint { get; set; } = string.Empty;
     public DesktopEnvironment Environment { get; set; } = new();
     public List<DesktopIconPosition> Icons { get; set; } = [];
 }
