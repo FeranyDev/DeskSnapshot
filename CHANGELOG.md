@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Named display layout profiles with stable monitor-topology matching, preview, and safe restore suggestions.
+- Named display layout profiles with stable monitor-topology matching, preview, safe restore suggestions, and remembered manual monitor mappings.
 - Manual, scheduled, event-triggered, tray, and pre-restore backups.
 - Timeline-based backup history with parent/child safety backups and batch deletion.
 - Large visual layout preview with direct restore action.

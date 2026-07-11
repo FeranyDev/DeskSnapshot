@@ -236,4 +236,10 @@
   <data name="MatchedProfileTitle" xml:space="preserve"><value>找到匹配的显示器档案</value></data>
   <data name="MatchedProfileSuggestion" xml:space="preserve"><value>当前显示器组合匹配“{0}”。可打开档案检查后恢复。</value></data>
   <data name="OpenProfiles" xml:space="preserve"><value>查看档案</value></data>
+  <data name="MonitorMappingTitle" xml:space="preserve"><value>显示器目标映射</value></data>
+  <data name="MonitorMappingRequired" xml:space="preserve"><value>部分原显示器缺失，请选择目标显示器</value></data>
+  <data name="MonitorMappingKeepAbsolute" xml:space="preserve"><value>不映射，保留绝对坐标</value></data>
+  <data name="MonitorMappingTargetFormat" xml:space="preserve"><value>{0}（{1} × {2}）</value></data>
+  <data name="MonitorMappingSourceFormat" xml:space="preserve"><value>原：{0}（{1} × {2}）</value></data>
+  <data name="RememberMonitorMapping" xml:space="preserve"><value>记住此显示器组合的映射选择</value></data>
 </root>

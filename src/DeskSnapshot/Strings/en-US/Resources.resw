@@ -236,4 +236,10 @@
   <data name="MatchedProfileTitle" xml:space="preserve"><value>Matching display profile found</value></data>
   <data name="MatchedProfileSuggestion" xml:space="preserve"><value>The current monitor setup matches “{0}”. Open the profile to review it before restoring.</value></data>
   <data name="OpenProfiles" xml:space="preserve"><value>View profiles</value></data>
+  <data name="MonitorMappingTitle" xml:space="preserve"><value>Monitor target mapping</value></data>
+  <data name="MonitorMappingRequired" xml:space="preserve"><value>Some original monitors are missing; choose their targets</value></data>
+  <data name="MonitorMappingKeepAbsolute" xml:space="preserve"><value>Do not map; keep absolute coordinates</value></data>
+  <data name="MonitorMappingTargetFormat" xml:space="preserve"><value>{0} ({1} × {2})</value></data>
+  <data name="MonitorMappingSourceFormat" xml:space="preserve"><value>Original: {0} ({1} × {2})</value></data>
+  <data name="RememberMonitorMapping" xml:space="preserve"><value>Remember mapping for this monitor combination</value></data>
 </root>

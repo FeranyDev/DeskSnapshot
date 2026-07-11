@@ -72,7 +72,10 @@ public sealed class DesktopIconLayoutService
         };
     }
 
-    public RestoreResult Restore(DesktopLayoutBackup backup, bool followMonitorPositions = false)
+    public RestoreResult Restore(
+        DesktopLayoutBackup backup,
+        bool followMonitorPositions = false,
+        IReadOnlyDictionary<string, string>? monitorMappings = null)
     {
         var listView = FindDesktopListView();
         using var remote = RemoteListViewMemory.Open(listView);
@@ -109,7 +112,7 @@ public sealed class DesktopIconLayoutService
             }
 
             var targetPoint = new NativePoint { X = icon.X, Y = icon.Y };
-            if (currentEnvironment is not null && TryMapToCurrentMonitor(backup, icon, currentEnvironment, out var mappedPoint))
+            if (currentEnvironment is not null && TryMapToCurrentMonitor(backup, icon, currentEnvironment, monitorMappings, out var mappedPoint))
             {
                 targetPoint = mappedPoint;
                 remapped++;
@@ -297,6 +300,7 @@ public sealed class DesktopIconLayoutService
         DesktopLayoutBackup backup,
         DesktopIconPosition icon,
         DesktopEnvironment currentEnvironment,
+        IReadOnlyDictionary<string, string>? monitorMappings,
         out NativePoint point)
     {
         point = default;
@@ -312,21 +316,13 @@ public sealed class DesktopIconLayoutService
             return false;
         }
 
-        var currentMonitor = currentEnvironment.Monitors.FirstOrDefault(monitor =>
-            string.Equals(monitor.Id, sourceMonitor.Id, StringComparison.OrdinalIgnoreCase));
-        currentMonitor ??= currentEnvironment.Monitors.FirstOrDefault(monitor =>
-            string.Equals(monitor.DeviceName, sourceMonitor.DeviceName, StringComparison.OrdinalIgnoreCase));
-        if (currentMonitor is null)
-        {
-            var sameName = currentEnvironment.Monitors
-                .Where(monitor => string.Equals(monitor.Name, sourceMonitor.Name, StringComparison.OrdinalIgnoreCase))
-                .Take(2)
-                .ToList();
-            if (sameName.Count == 1)
-            {
-                currentMonitor = sameName[0];
-            }
-        }
+        var sourceKey = MonitorMappingService.GetMonitorKey(sourceMonitor);
+        string? preferredTargetId = null;
+        monitorMappings?.TryGetValue(sourceKey, out preferredTargetId);
+        var currentMonitor = MonitorMappingService.ResolveTargetMonitor(
+            sourceMonitor,
+            currentEnvironment,
+            preferredTargetId);
 
         if (currentMonitor is null)
         {

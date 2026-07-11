@@ -358,6 +358,10 @@ public sealed partial class MainWindow : Window
         });
 
         CheckBox? followMonitorsCheckBox = null;
+        CheckBox? rememberMonitorMappingCheckBox = null;
+        var monitorMappingControls = new Dictionary<string, ComboBox>(StringComparer.OrdinalIgnoreCase);
+        DesktopEnvironment? currentEnvironment = null;
+        string? monitorMappingKey = null;
         var supportsMonitorMapping = backup.Environment.Monitors.Count > 0 &&
                                      backup.Icons.Any(icon => !string.IsNullOrWhiteSpace(icon.MonitorId));
         if (supportsMonitorMapping)
@@ -376,6 +380,99 @@ public sealed partial class MainWindow : Window
                 FontSize = 12,
                 Opacity = 0.7
             });
+
+            currentEnvironment = _layoutService.ReadEnvironment();
+            if (currentEnvironment.Monitors.Count > 0)
+            {
+                monitorMappingKey = MonitorMappingService.CreateMappingKey(backup.Environment, currentEnvironment);
+                _settings.MonitorMappings ??= [];
+                _settings.MonitorMappings.TryGetValue(monitorMappingKey, out var rememberedMappings);
+                var mappingPanel = new StackPanel { Spacing = 10 };
+                var hasUnmatchedMonitor = false;
+
+                foreach (var sourceMonitor in backup.Environment.Monitors)
+                {
+                    var sourceKey = MonitorMappingService.GetMonitorKey(sourceMonitor);
+                    string? rememberedTargetId = null;
+                    rememberedMappings?.TryGetValue(sourceKey, out rememberedTargetId);
+                    var suggestedTarget = MonitorMappingService.ResolveTargetMonitor(
+                        sourceMonitor,
+                        currentEnvironment,
+                        rememberedTargetId);
+                    hasUnmatchedMonitor |= suggestedTarget is null;
+
+                    var targetSelector = new ComboBox
+                    {
+                        MinWidth = 260,
+                        HorizontalAlignment = HorizontalAlignment.Stretch
+                    };
+                    targetSelector.Items.Add(new ComboBoxItem
+                    {
+                        Content = LocalizationService.Get("MonitorMappingKeepAbsolute"),
+                        Tag = string.Empty
+                    });
+                    foreach (var targetMonitor in currentEnvironment.Monitors)
+                    {
+                        targetSelector.Items.Add(new ComboBoxItem
+                        {
+                            Content = LocalizationService.Format(
+                                "MonitorMappingTargetFormat",
+                                targetMonitor.Name,
+                                targetMonitor.Width,
+                                targetMonitor.Height),
+                            Tag = MonitorMappingService.GetMonitorKey(targetMonitor)
+                        });
+                    }
+
+                    targetSelector.SelectedItem = targetSelector.Items
+                        .OfType<ComboBoxItem>()
+                        .FirstOrDefault(item => suggestedTarget is not null &&
+                                                string.Equals(
+                                                    item.Tag?.ToString(),
+                                                    MonitorMappingService.GetMonitorKey(suggestedTarget),
+                                                    StringComparison.OrdinalIgnoreCase))
+                        ?? targetSelector.Items[0];
+                    monitorMappingControls[sourceKey] = targetSelector;
+
+                    var row = new Grid { ColumnSpacing = 16 };
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    row.Children.Add(new TextBlock
+                    {
+                        Text = LocalizationService.Format(
+                            "MonitorMappingSourceFormat",
+                            sourceMonitor.Name,
+                            sourceMonitor.Width,
+                            sourceMonitor.Height),
+                        TextTrimming = TextTrimming.CharacterEllipsis,
+                        VerticalAlignment = VerticalAlignment.Center
+                    });
+                    Grid.SetColumn(targetSelector, 1);
+                    row.Children.Add(targetSelector);
+                    mappingPanel.Children.Add(row);
+                }
+
+                rememberMonitorMappingCheckBox = new CheckBox
+                {
+                    Content = LocalizationService.Get("RememberMonitorMapping"),
+                    IsChecked = true,
+                    Margin = new Thickness(0, 4, 0, 0)
+                };
+                mappingPanel.Children.Add(rememberMonitorMappingCheckBox);
+
+                var mappingExpander = new Expander
+                {
+                    Header = hasUnmatchedMonitor
+                        ? LocalizationService.Get("MonitorMappingRequired")
+                        : LocalizationService.Get("MonitorMappingTitle"),
+                    Content = mappingPanel,
+                    IsExpanded = hasUnmatchedMonitor
+                };
+                mappingExpander.IsEnabled = followMonitorsCheckBox.IsChecked == true;
+                followMonitorsCheckBox.Checked += (_, _) => mappingExpander.IsEnabled = true;
+                followMonitorsCheckBox.Unchecked += (_, _) => mappingExpander.IsEnabled = false;
+                restoreContent.Children.Add(mappingExpander);
+            }
         }
 
         var dialog = new ContentDialog
@@ -410,7 +507,32 @@ public sealed partial class MainWindow : Window
 
             BusyText.Text = LocalizationService.Get("RestoringIcons");
             var followMonitorPositions = followMonitorsCheckBox?.IsChecked == true;
-            var result = await Task.Run(() => _layoutService.Restore(backup, followMonitorPositions));
+            Dictionary<string, string>? monitorMappings = null;
+            if (followMonitorPositions && monitorMappingControls.Count > 0)
+            {
+                monitorMappings = monitorMappingControls
+                    .Select(pair => new
+                    {
+                        SourceId = pair.Key,
+                        TargetId = (pair.Value.SelectedItem as ComboBoxItem)?.Tag?.ToString()
+                    })
+                    .ToDictionary(pair => pair.SourceId, pair => pair.TargetId ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+
+                if (rememberMonitorMappingCheckBox?.IsChecked == true && monitorMappingKey is not null)
+                {
+                    _settings.MonitorMappings[monitorMappingKey] = new Dictionary<string, string>(monitorMappings, StringComparer.OrdinalIgnoreCase);
+                    try
+                    {
+                        await _settingsStore.SaveAsync(_settings);
+                    }
+                    catch (Exception exception)
+                    {
+                        App.Log($"Unable to remember monitor mapping: {exception}");
+                    }
+                }
+            }
+
+            var result = await Task.Run(() => _layoutService.Restore(backup, followMonitorPositions, monitorMappings));
             RefreshBackupItems();
 
             var severity = result.Failed == 0 ? InfoBarSeverity.Success : InfoBarSeverity.Warning;

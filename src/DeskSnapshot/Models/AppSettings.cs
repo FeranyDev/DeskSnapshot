@@ -12,4 +12,5 @@ public sealed class AppSettings
     public bool RunAtStartup { get; set; }
     public bool MinimizeToTray { get; set; }
     public string UiLanguage { get; set; } = "system";
+    public Dictionary<string, Dictionary<string, string>> MonitorMappings { get; set; } = [];
 }
