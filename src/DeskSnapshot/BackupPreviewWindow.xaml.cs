@@ -11,12 +11,13 @@ namespace DeskSnapshot;
 
 public sealed partial class BackupPreviewWindow : Window
 {
-    private const double CanvasWidth = 1200;
     private const double IconSize = 20;
     private const double Inset = 14;
+    private readonly DesktopLayoutBackup _backup;
 
     public BackupPreviewWindow(DesktopLayoutBackup backup, Window owner)
     {
+        _backup = backup;
         InitializeComponent();
         Title = $"{backup.Name} - 布局预览";
 
@@ -31,7 +32,6 @@ public sealed partial class BackupPreviewWindow : Window
 
         ConfigureWindow(owner);
         PopulateHeader(backup);
-        DrawLayout(backup);
     }
 
     private void ConfigureWindow(Window owner)
@@ -68,24 +68,34 @@ public sealed partial class BackupPreviewWindow : Window
         }
     }
 
-    private void DrawLayout(DesktopLayoutBackup backup)
+    private void PreviewSurface_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (backup.Icons.Count == 0)
+        DrawLayout(e.NewSize.Width, e.NewSize.Height);
+    }
+
+    private void DrawLayout(double canvasWidth, double canvasHeight)
+    {
+        if (canvasWidth <= Inset * 2 || canvasHeight <= Inset * 2)
         {
-            EmptyPreviewText.Visibility = Visibility.Visible;
-            App.Log($"Backup preview opened with no icons: {backup.Id}");
             return;
         }
 
-        var coordinateWidth = Math.Max(1d, backup.Environment.VirtualWidth);
-        var coordinateHeight = Math.Max(1d, backup.Environment.VirtualHeight);
-        var canvasHeight = Math.Clamp(CanvasWidth * coordinateHeight / coordinateWidth, 420, 820);
-        LayoutCanvas.Height = canvasHeight;
+        LayoutCanvas.Children.Clear();
 
-        var usableWidth = CanvasWidth - Inset * 2;
+        if (_backup.Icons.Count == 0)
+        {
+            EmptyPreviewText.Visibility = Visibility.Visible;
+            App.Log($"Backup preview opened with no icons: {_backup.Id}");
+            return;
+        }
+
+        EmptyPreviewText.Visibility = Visibility.Collapsed;
+        var coordinateWidth = Math.Max(1d, _backup.Environment.VirtualWidth);
+        var coordinateHeight = Math.Max(1d, _backup.Environment.VirtualHeight);
+        var usableWidth = canvasWidth - Inset * 2;
         var usableHeight = canvasHeight - Inset * 2;
 
-        foreach (var icon in backup.Icons.OrderBy(item => item.CaptureOrder))
+        foreach (var icon in _backup.Icons.OrderBy(item => item.CaptureOrder))
         {
             var tile = new Border
             {
@@ -112,7 +122,7 @@ public sealed partial class BackupPreviewWindow : Window
             LayoutCanvas.Children.Add(tile);
         }
 
-        App.Log($"Backup preview rendered {LayoutCanvas.Children.Count} icons for {backup.Id}");
+        App.Log($"Backup preview rendered {LayoutCanvas.Children.Count} square icons for {_backup.Id} at {canvasWidth:F0}x{canvasHeight:F0}");
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();

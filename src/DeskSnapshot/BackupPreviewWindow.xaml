@@ -29,10 +29,10 @@
                 BorderBrush="#9664A5FF"
                 Background="#12253A"
                 Padding="18">
-            <Grid>
-                <Viewbox Stretch="Fill">
-                    <Canvas x:Name="LayoutCanvas" Width="1200" Height="675" />
-                </Viewbox>
+            <Grid x:Name="PreviewSurface" SizeChanged="PreviewSurface_SizeChanged">
+                <Canvas x:Name="LayoutCanvas"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" />
                 <TextBlock x:Name="EmptyPreviewText"
                            Text="此备份没有可显示的图标位置"
                            Foreground="White"
