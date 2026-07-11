@@ -19,13 +19,14 @@ git clone https://github.com/FeranyDev/DeskSnapshot.git
 cd DeskSnapshot
 dotnet restore src/DeskSnapshot/DeskSnapshot.csproj --configfile NuGet.Config
 dotnet build src/DeskSnapshot/DeskSnapshot.csproj -c Debug -p:Platform=x64
+dotnet test tests/DeskSnapshot.Tests/DeskSnapshot.Tests.csproj -c Release
 ```
 
 ## 提交改动
 
 1. 从 `main` 创建主题分支，例如 `fix/preview-layout` 或 `feat/import-backup`。
 2. 保持改动聚焦，并同步更新中英文资源和相关文档。
-3. 至少验证 Debug 和 Release x64 构建。
+3. 至少验证单元测试以及 Debug、Release x64 构建。
 4. 不要提交本地备份、签名证书、构建产物、缓存或设计源文件。
 5. 提交 Pull Request，说明行为变化、验证方式和相关 Issue；界面变更建议附截图。
 

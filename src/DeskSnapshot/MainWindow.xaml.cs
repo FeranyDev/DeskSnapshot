@@ -525,39 +525,10 @@ public sealed partial class MainWindow : Window
     {
         var displayedItems = BackupTimelineGroups.SelectMany(group => group).ToList();
         var itemsById = displayedItems.ToDictionary(item => item.Backup.Id);
-        var childIdsByParent = _backups
-            .Where(backup => backup.RelatedBackupId is not null)
-            .GroupBy(backup => backup.RelatedBackupId!.Value)
-            .ToDictionary(group => group.Key, group => group.Select(backup => backup.Id).ToList());
-        var descendants = new List<BackupListItem>();
-        var pending = new Stack<Guid>();
-        var visited = new HashSet<Guid> { parent.Backup.Id };
-        pending.Push(parent.Backup.Id);
-
-        while (pending.Count > 0)
-        {
-            var parentId = pending.Pop();
-            if (!childIdsByParent.TryGetValue(parentId, out var childIds))
-            {
-                continue;
-            }
-
-            foreach (var childId in childIds)
-            {
-                if (!visited.Add(childId))
-                {
-                    continue;
-                }
-
-                pending.Push(childId);
-                if (itemsById.TryGetValue(childId, out var childItem))
-                {
-                    descendants.Add(childItem);
-                }
-            }
-        }
-
-        return descendants;
+        return BackupRelationshipService.GetDescendantIds(_backups, parent.Backup.Id)
+            .Where(itemsById.ContainsKey)
+            .Select(id => itemsById[id])
+            .ToList();
     }
 
     private void AppNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -982,18 +953,9 @@ public sealed partial class MainWindow : Window
 
     private bool TrimAutomaticBackupsToRetention()
     {
-        var retention = Math.Clamp(_settings.AutomaticBackupRetention, 1, 200);
-        var expired = _backups
-            .Where(item => item.IsAutomaticBackup)
-            .OrderByDescending(item => item.CreatedAt)
-            .Skip(retention)
-            .ToList();
-        foreach (var backup in expired)
-        {
-            _backups.Remove(backup);
-        }
-
-        return expired.Count > 0;
+        return BackupRetentionService.TrimAutomaticBackups(
+            _backups,
+            _settings.AutomaticBackupRetention).Count > 0;
     }
 
     private static string GetReasonText(string reason) => reason switch

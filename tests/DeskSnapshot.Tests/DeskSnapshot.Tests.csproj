@@ -1,14 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="MSTest.Sdk/4.3.0">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <TestingExtensionsProfile>Default</TestingExtensionsProfile>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\..\src\DeskSnapshot\Models\DesktopLayoutBackup.cs" Link="Models\DesktopLayoutBackup.cs" />
     <Compile Include="..\..\src\DeskSnapshot\Models\DesktopLayoutComparison.cs" Link="Models\DesktopLayoutComparison.cs" />
+    <Compile Include="..\..\src\DeskSnapshot\Services\BackupStore.cs" Link="Services\BackupStore.cs" />
+    <Compile Include="..\..\src\DeskSnapshot\Services\BackupRelationshipService.cs" Link="Services\BackupRelationshipService.cs" />
+    <Compile Include="..\..\src\DeskSnapshot\Services\BackupRetentionService.cs" Link="Services\BackupRetentionService.cs" />
     <Compile Include="..\..\src\DeskSnapshot\Services\DesktopLayoutComparisonService.cs" Link="Services\DesktopLayoutComparisonService.cs" />
   </ItemGroup>
 </Project>

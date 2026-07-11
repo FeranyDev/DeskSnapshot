@@ -35,8 +35,8 @@ jobs:
         run: dotnet restore $env:PROJECT_PATH --runtime $env:RUNTIME_IDENTIFIER --configfile NuGet.Config
       - name: Build Release
         run: dotnet build $env:PROJECT_PATH --configuration Release --runtime $env:RUNTIME_IDENTIFIER --no-restore
-      - name: Test layout comparison
-        run: dotnet run --project tests/DeskSnapshot.ComparisonTests/DeskSnapshot.ComparisonTests.csproj --configuration Release
+      - name: Run unit tests
+        run: dotnet test tests/DeskSnapshot.Tests/DeskSnapshot.Tests.csproj --configuration Release
 
   package:
     name: Publish portable and MSIX packages

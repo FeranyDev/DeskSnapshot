@@ -54,6 +54,16 @@ dotnet restore src/DeskSnapshot/DeskSnapshot.csproj --configfile NuGet.Config
 dotnet run --project src/DeskSnapshot/DeskSnapshot.csproj -p:Platform=x64
 ```
 
+## 测试
+
+核心逻辑使用 MSTest 和 Microsoft.Testing.Platform，测试不读写真实桌面或正式备份目录：
+
+```powershell
+dotnet test tests/DeskSnapshot.Tests/DeskSnapshot.Tests.csproj -c Release
+```
+
+当前覆盖桌面差异匹配、重复名称和显示环境判断、25,000 图标性能场景、备份父子关系、自动备份保留策略，以及 JSON 往返、覆盖写入和损坏文件隔离。
+
 首次还原需要联网下载 Windows App SDK NuGet 包。备份数据保存在：
 
 ```text
