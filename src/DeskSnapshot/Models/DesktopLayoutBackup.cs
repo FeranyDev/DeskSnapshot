@@ -8,6 +8,7 @@ public sealed class DesktopLayoutBackup
     public string Note { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.Now;
     public bool IsSafetyBackup { get; set; }
+    public bool IsAutomaticBackup { get; set; }
     public DesktopEnvironment Environment { get; set; } = new();
     public List<DesktopIconPosition> Icons { get; set; } = [];
 }

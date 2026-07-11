@@ -22,51 +22,45 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="232" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0" Background="{ThemeResource RailBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,1,0">
-                <Grid Padding="8,12,8,14">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel>
-                        <Button x:Name="DashboardNavButton" Style="{StaticResource NavButtonStyle}" Click="DashboardNav_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <FontIcon Glyph="&#xE80F;" FontSize="16" />
-                                <TextBlock Text="概览" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="BackupsNavButton" Style="{StaticResource NavButtonStyle}" Click="BackupsNav_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <FontIcon Glyph="&#xE8C8;" FontSize="16" />
-                                <TextBlock Text="备份记录" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="SettingsNavButton" Style="{StaticResource NavButtonStyle}" Click="SettingsNav_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="12">
-                                <FontIcon Glyph="&#xE713;" FontSize="16" />
-                                <TextBlock Text="设置" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
+        <NavigationView x:Name="AppNavigationView"
+                        Grid.Row="1"
+                        IsBackButtonVisible="Collapsed"
+                        IsSettingsVisible="False"
+                        IsPaneToggleButtonVisible="True"
+                        IsPaneOpen="True"
+                        PaneDisplayMode="Auto"
+                        OpenPaneLength="232"
+                        CompactPaneLength="48"
+                        PaneOpened="AppNavigationView_PaneOpened"
+                        PaneClosed="AppNavigationView_PaneClosed"
+                        SelectionChanged="AppNavigationView_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Name="DashboardNavItem" Content="概览" Tag="dashboard">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE80F;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="BackupsNavItem" Content="备份记录" Tag="backups">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8C8;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="SettingsNavItem" Content="设置" Tag="settings">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE713;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <NavigationView.PaneFooter>
+                <Border x:Name="LocalStorageFooter" Margin="8,8,8,14" Padding="12" CornerRadius="10" Background="{ThemeResource SubtleBrush}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="本地离线存储" FontWeight="SemiBold" FontSize="12" />
+                        <TextBlock Text="布局数据不会上传" FontSize="11" Foreground="{ThemeResource MutedTextBrush}" />
                     </StackPanel>
-
-                    <Border Grid.Row="2" Margin="8" Padding="12" CornerRadius="10" Background="{ThemeResource SubtleBrush}">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="本地离线存储" FontWeight="SemiBold" FontSize="12" />
-                            <TextBlock Text="布局数据不会上传" FontSize="11" Foreground="{ThemeResource MutedTextBrush}" />
-                        </StackPanel>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <Grid Grid.Column="1">
+                </Border>
+            </NavigationView.PaneFooter>
+            <NavigationView.Content>
+            <Grid>
                 <InfoBar x:Name="ActionInfoBar" Margin="28,16,28,0" VerticalAlignment="Top" IsOpen="False" IsClosable="True" Canvas.ZIndex="10" />
 
                 <ScrollViewer x:Name="DashboardSection"
@@ -262,6 +256,81 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="自动备份" FontWeight="SemiBold" FontSize="16" />
+                                    <TextBlock x:Name="AutoBackupStatusText"
+                                               Text="自动备份已关闭"
+                                               Foreground="{ThemeResource MutedTextBrush}"
+                                               FontSize="12" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="AutoBackupToggle"
+                                              Grid.Column="1"
+                                              OffContent="关"
+                                              OnContent="开"
+                                              Toggled="AutoBackupSettings_Changed" />
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="定时备份" FontWeight="SemiBold" />
+                                        <TextBlock Text="按固定间隔保存当前桌面布局。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                                    </StackPanel>
+                                    <ToggleSwitch x:Name="ScheduledBackupToggle"
+                                                  Grid.Column="1"
+                                                  Toggled="AutoBackupSettings_Changed" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="180" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="备份间隔" VerticalAlignment="Center" />
+                                    <ComboBox x:Name="BackupIntervalComboBox"
+                                              Grid.Column="1"
+                                              SelectedIndex="2"
+                                              SelectionChanged="BackupIntervalComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="每 5 分钟" Tag="5" />
+                                        <ComboBoxItem Content="每 15 分钟" Tag="15" />
+                                        <ComboBoxItem Content="每 30 分钟" Tag="30" />
+                                        <ComboBoxItem Content="每 1 小时" Tag="60" />
+                                        <ComboBoxItem Content="每 3 小时" Tag="180" />
+                                    </ComboBox>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel Spacing="12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="事件触发" FontWeight="SemiBold" />
+                                    <TextBlock Text="事件检测采用防抖处理，避免短时间内重复生成备份。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                                </StackPanel>
+                                <CheckBox x:Name="StartupTriggerCheckBox"
+                                          Content="程序启动后备份"
+                                          Click="AutoBackupSettings_Changed" />
+                                <CheckBox x:Name="DisplayTriggerCheckBox"
+                                          Content="显示器、分辨率或 DPI 变化后备份"
+                                          Click="AutoBackupSettings_Changed" />
+                                <CheckBox x:Name="DesktopTriggerCheckBox"
+                                          Content="桌面图标增加、删除或位置变化后备份"
+                                          Click="AutoBackupSettings_Changed" />
+                                <TextBlock Text="自动备份最多保留最近 20 份。" Foreground="{ThemeResource MutedTextBrush}" FontSize="12" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="220" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Spacing="4">
@@ -305,6 +374,7 @@
                     </Border>
                 </Grid>
             </Grid>
-        </Grid>
+            </NavigationView.Content>
+        </NavigationView>
     </Grid>
 </Window>

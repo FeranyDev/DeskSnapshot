@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Text;
 using DeskSnapshot.Models;
 using DeskSnapshot.Services;
 using Microsoft.UI;
@@ -14,9 +15,19 @@ namespace DeskSnapshot;
 public sealed partial class MainWindow : Window
 {
     private readonly BackupStore _store = new();
+    private readonly SettingsStore _settingsStore = new();
     private readonly DesktopIconLayoutService _layoutService = new();
     private readonly List<DesktopLayoutBackup> _backups = [];
     private readonly List<BackupPreviewWindow> _previewWindows = [];
+    private readonly DispatcherTimer _scheduledBackupTimer = new();
+    private readonly DispatcherTimer _eventWatchTimer = new();
+    private AppSettings _settings = new();
+    private bool _settingsLoaded;
+    private bool _autoBackupBusy;
+    private string? _lastDesktopFingerprint;
+    private string? _lastDisplayFingerprint;
+    private string? _pendingDesktopFingerprint;
+    private int _pendingDesktopStability;
 
     public ObservableCollection<BackupListItem> BackupItems { get; } = [];
 
@@ -44,7 +55,11 @@ public sealed partial class MainWindow : Window
         ResizeWindow();
         App.Log("MainWindow: resize complete");
         StoragePathText.Text = _store.FilePath;
+        _scheduledBackupTimer.Tick += ScheduledBackupTimer_Tick;
+        _eventWatchTimer.Tick += EventWatchTimer_Tick;
+        Closed += MainWindow_Closed;
         RootGrid.Loaded += MainWindow_Loaded;
+        AppNavigationView.SelectedItem = DashboardNavItem;
         ShowSection(DashboardSection);
         App.Log("MainWindow: constructor complete");
     }
@@ -63,8 +78,13 @@ public sealed partial class MainWindow : Window
         try
         {
             _backups.AddRange(await _store.LoadAsync());
+            _settings = await _settingsStore.LoadAsync();
             RefreshBackupItems();
             RefreshEnvironmentSummary();
+            ApplySettingsToUi();
+            _settingsLoaded = true;
+            await InitializeAutoBackupAsync();
+            ConfigureAutoBackupTimers();
         }
         catch (Exception exception)
         {
@@ -264,21 +284,338 @@ public sealed partial class MainWindow : Window
         previewWindow.Activate();
     }
 
-    private void DashboardNav_Click(object sender, RoutedEventArgs e) => ShowSection(DashboardSection);
+    private void AppNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    {
+        var tag = args.SelectedItemContainer?.Tag?.ToString();
+        ShowSection(tag switch
+        {
+            "backups" => BackupsSection,
+            "settings" => SettingsSection,
+            _ => DashboardSection
+        });
+    }
 
-    private void BackupsNav_Click(object sender, RoutedEventArgs e) => ShowSection(BackupsSection);
+    private void AppNavigationView_PaneOpened(NavigationView sender, object args) =>
+        LocalStorageFooter.Visibility = Visibility.Visible;
 
-    private void SettingsNav_Click(object sender, RoutedEventArgs e) => ShowSection(SettingsSection);
+    private void AppNavigationView_PaneClosed(NavigationView sender, object args) =>
+        LocalStorageFooter.Visibility = Visibility.Collapsed;
+
+    private void BackupsNav_Click(object sender, RoutedEventArgs e)
+    {
+        AppNavigationView.SelectedItem = BackupsNavItem;
+        ShowSection(BackupsSection);
+    }
 
     private void ShowSection(FrameworkElement section)
     {
         DashboardSection.Visibility = section == DashboardSection ? Visibility.Visible : Visibility.Collapsed;
         BackupsSection.Visibility = section == BackupsSection ? Visibility.Visible : Visibility.Collapsed;
         SettingsSection.Visibility = section == SettingsSection ? Visibility.Visible : Visibility.Collapsed;
+    }
 
-        DashboardNavButton.Background = section == DashboardSection ? (Brush)Application.Current.Resources["SubtleBrush"] : new SolidColorBrush(Colors.Transparent);
-        BackupsNavButton.Background = section == BackupsSection ? (Brush)Application.Current.Resources["SubtleBrush"] : new SolidColorBrush(Colors.Transparent);
-        SettingsNavButton.Background = section == SettingsSection ? (Brush)Application.Current.Resources["SubtleBrush"] : new SolidColorBrush(Colors.Transparent);
+    private void ApplySettingsToUi()
+    {
+        AutoBackupToggle.IsOn = _settings.AutoBackupEnabled;
+        ScheduledBackupToggle.IsOn = _settings.ScheduledBackupEnabled;
+        StartupTriggerCheckBox.IsChecked = _settings.BackupOnStartup;
+        DisplayTriggerCheckBox.IsChecked = _settings.BackupOnDisplayChange;
+        DesktopTriggerCheckBox.IsChecked = _settings.BackupOnDesktopChange;
+
+        foreach (var item in BackupIntervalComboBox.Items.OfType<ComboBoxItem>())
+        {
+            if (int.TryParse(item.Tag?.ToString(), out var minutes) && minutes == _settings.BackupIntervalMinutes)
+            {
+                BackupIntervalComboBox.SelectedItem = item;
+                break;
+            }
+        }
+
+        UpdateAutoBackupControls();
+    }
+
+    private async void AutoBackupSettings_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_settingsLoaded)
+        {
+            return;
+        }
+
+        UpdateSettingsFromUi();
+        await _settingsStore.SaveAsync(_settings);
+        UpdateAutoBackupControls();
+        ConfigureAutoBackupTimers();
+
+        if (_settings.AutoBackupEnabled && _lastDesktopFingerprint is null)
+        {
+            await EstablishAutoBackupBaselineAsync();
+        }
+    }
+
+    private async void BackupIntervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_settingsLoaded)
+        {
+            return;
+        }
+
+        UpdateSettingsFromUi();
+        await _settingsStore.SaveAsync(_settings);
+        UpdateAutoBackupControls();
+        ConfigureAutoBackupTimers();
+    }
+
+    private void UpdateSettingsFromUi()
+    {
+        _settings.AutoBackupEnabled = AutoBackupToggle.IsOn;
+        _settings.ScheduledBackupEnabled = ScheduledBackupToggle.IsOn;
+        _settings.BackupOnStartup = StartupTriggerCheckBox.IsChecked == true;
+        _settings.BackupOnDisplayChange = DisplayTriggerCheckBox.IsChecked == true;
+        _settings.BackupOnDesktopChange = DesktopTriggerCheckBox.IsChecked == true;
+
+        if (BackupIntervalComboBox.SelectedItem is ComboBoxItem selected &&
+            int.TryParse(selected.Tag?.ToString(), out var minutes))
+        {
+            _settings.BackupIntervalMinutes = minutes;
+        }
+    }
+
+    private void UpdateAutoBackupControls()
+    {
+        var enabled = _settings.AutoBackupEnabled;
+        ScheduledBackupToggle.IsEnabled = enabled;
+        BackupIntervalComboBox.IsEnabled = enabled && _settings.ScheduledBackupEnabled;
+        StartupTriggerCheckBox.IsEnabled = enabled;
+        DisplayTriggerCheckBox.IsEnabled = enabled;
+        DesktopTriggerCheckBox.IsEnabled = enabled;
+
+        if (!enabled)
+        {
+            AutoBackupStatusText.Text = "自动备份已关闭";
+            return;
+        }
+
+        var modes = new List<string>();
+        if (_settings.ScheduledBackupEnabled)
+        {
+            modes.Add($"每 {_settings.BackupIntervalMinutes} 分钟");
+        }
+        if (_settings.BackupOnStartup) modes.Add("启动时");
+        if (_settings.BackupOnDisplayChange) modes.Add("显示环境变化");
+        if (_settings.BackupOnDesktopChange) modes.Add("图标布局变化");
+        AutoBackupStatusText.Text = modes.Count == 0
+            ? "自动备份已开启，但尚未选择触发方式"
+            : $"已启用：{string.Join("、", modes)}";
+    }
+
+    private async Task InitializeAutoBackupAsync()
+    {
+        if (!_settings.AutoBackupEnabled)
+        {
+            return;
+        }
+
+        var snapshot = await CaptureAutomaticSnapshotAsync();
+        if (snapshot is null)
+        {
+            return;
+        }
+
+        SetAutoBackupBaseline(snapshot);
+        if (_settings.BackupOnStartup)
+        {
+            await CreateAutomaticBackupAsync("程序启动", snapshot);
+        }
+    }
+
+    private async Task EstablishAutoBackupBaselineAsync()
+    {
+        var snapshot = await CaptureAutomaticSnapshotAsync();
+        if (snapshot is not null)
+        {
+            SetAutoBackupBaseline(snapshot);
+        }
+    }
+
+    private void ConfigureAutoBackupTimers()
+    {
+        _scheduledBackupTimer.Stop();
+        _eventWatchTimer.Stop();
+
+        if (!_settings.AutoBackupEnabled)
+        {
+            return;
+        }
+
+        if (_settings.ScheduledBackupEnabled)
+        {
+            _scheduledBackupTimer.Interval = TimeSpan.FromMinutes(Math.Clamp(_settings.BackupIntervalMinutes, 1, 1440));
+            _scheduledBackupTimer.Start();
+        }
+
+        if (_settings.BackupOnDisplayChange || _settings.BackupOnDesktopChange)
+        {
+            _eventWatchTimer.Interval = TimeSpan.FromSeconds(10);
+            _eventWatchTimer.Start();
+        }
+    }
+
+    private async void ScheduledBackupTimer_Tick(object? sender, object e)
+    {
+        await CreateAutomaticBackupAsync("定时");
+    }
+
+    private async void EventWatchTimer_Tick(object? sender, object e)
+    {
+        if (_autoBackupBusy || !_settings.AutoBackupEnabled)
+        {
+            return;
+        }
+
+        _autoBackupBusy = true;
+        try
+        {
+            var snapshot = await CaptureAutomaticSnapshotAsync();
+            if (snapshot is null)
+            {
+                return;
+            }
+
+            var displayFingerprint = GetDisplayFingerprint(snapshot.Environment);
+            var desktopFingerprint = GetDesktopFingerprint(snapshot);
+            if (_lastDisplayFingerprint is null || _lastDesktopFingerprint is null)
+            {
+                SetAutoBackupBaseline(snapshot);
+                return;
+            }
+
+            if (_settings.BackupOnDisplayChange && displayFingerprint != _lastDisplayFingerprint)
+            {
+                await SaveAutomaticBackupCoreAsync("显示环境变化", snapshot);
+                return;
+            }
+
+            if (_settings.BackupOnDesktopChange && desktopFingerprint != _lastDesktopFingerprint)
+            {
+                if (_pendingDesktopFingerprint == desktopFingerprint)
+                {
+                    _pendingDesktopStability++;
+                }
+                else
+                {
+                    _pendingDesktopFingerprint = desktopFingerprint;
+                    _pendingDesktopStability = 1;
+                }
+
+                if (_pendingDesktopStability >= 2)
+                {
+                    await SaveAutomaticBackupCoreAsync("图标布局变化", snapshot);
+                }
+                return;
+            }
+
+            _pendingDesktopFingerprint = null;
+            _pendingDesktopStability = 0;
+            _lastDisplayFingerprint = displayFingerprint;
+            if (!_settings.BackupOnDesktopChange)
+            {
+                _lastDesktopFingerprint = desktopFingerprint;
+            }
+        }
+        finally
+        {
+            _autoBackupBusy = false;
+        }
+    }
+
+    private async Task CreateAutomaticBackupAsync(string reason, DesktopLayoutBackup? snapshot = null)
+    {
+        if (_autoBackupBusy || !_settings.AutoBackupEnabled)
+        {
+            return;
+        }
+
+        _autoBackupBusy = true;
+        try
+        {
+            snapshot ??= await CaptureAutomaticSnapshotAsync();
+            if (snapshot is not null)
+            {
+                await SaveAutomaticBackupCoreAsync(reason, snapshot);
+            }
+        }
+        finally
+        {
+            _autoBackupBusy = false;
+        }
+    }
+
+    private async Task<DesktopLayoutBackup?> CaptureAutomaticSnapshotAsync()
+    {
+        try
+        {
+            return await Task.Run(() => _layoutService.Capture("自动检测"));
+        }
+        catch (Exception exception)
+        {
+            App.Log($"Automatic backup capture failed: {exception}");
+            AutoBackupStatusText.Text = $"自动备份检测失败：{exception.Message}";
+            return null;
+        }
+    }
+
+    private async Task SaveAutomaticBackupCoreAsync(string reason, DesktopLayoutBackup snapshot)
+    {
+        snapshot.Name = $"自动备份 · {reason} {DateTime.Now:MM-dd HH:mm}";
+        snapshot.Note = $"由“{reason}”触发";
+        snapshot.CreatedAt = DateTimeOffset.Now;
+        snapshot.IsAutomaticBackup = true;
+        snapshot.IsSafetyBackup = false;
+        _backups.Add(snapshot);
+
+        var retention = Math.Clamp(_settings.AutomaticBackupRetention, 1, 200);
+        var expired = _backups
+            .Where(item => item.IsAutomaticBackup)
+            .OrderByDescending(item => item.CreatedAt)
+            .Skip(retention)
+            .ToList();
+        foreach (var backup in expired)
+        {
+            _backups.Remove(backup);
+        }
+
+        await _store.SaveAsync(_backups);
+        SetAutoBackupBaseline(snapshot);
+        RefreshBackupItems();
+        AutoBackupStatusText.Text = $"上次自动备份：{DateTime.Now:HH:mm:ss}（{reason}）";
+        App.Log($"Automatic backup saved: {snapshot.Id}, reason={reason}, icons={snapshot.Icons.Count}");
+    }
+
+    private void SetAutoBackupBaseline(DesktopLayoutBackup snapshot)
+    {
+        _lastDisplayFingerprint = GetDisplayFingerprint(snapshot.Environment);
+        _lastDesktopFingerprint = GetDesktopFingerprint(snapshot);
+        _pendingDesktopFingerprint = null;
+        _pendingDesktopStability = 0;
+    }
+
+    private static string GetDisplayFingerprint(DesktopEnvironment environment) =>
+        $"{environment.VirtualLeft},{environment.VirtualTop},{environment.VirtualWidth},{environment.VirtualHeight},{environment.Dpi},{environment.MonitorCount}";
+
+    private static string GetDesktopFingerprint(DesktopLayoutBackup snapshot)
+    {
+        var builder = new StringBuilder(snapshot.Icons.Count * 32);
+        foreach (var icon in snapshot.Icons.OrderBy(item => item.CaptureOrder))
+        {
+            builder.Append(icon.Name).Append('\u001f').Append(icon.X).Append(',').Append(icon.Y).Append('\u001e');
+        }
+        return builder.ToString();
+    }
+
+    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    {
+        _scheduledBackupTimer.Stop();
+        _eventWatchTimer.Stop();
     }
 
     private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
