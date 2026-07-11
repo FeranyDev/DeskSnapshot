@@ -1,6 +1,14 @@
 # DeskSnapshot
 
+[![Build](https://github.com/FeranyDev/DeskSnapshot/actions/workflows/build.yml/badge.svg)](https://github.com/FeranyDev/DeskSnapshot/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4.svg)](https://www.microsoft.com/windows)
+
 DeskSnapshot 是一个轻量、离线的 Windows 桌面图标布局备份工具，使用 WinUI 3 和 Windows App SDK 构建。
+
+> English: DeskSnapshot is a lightweight, offline WinUI 3 utility for backing up, previewing, and restoring Windows desktop icon layouts.
+
+项目目前处于首个公开版本的积极开发阶段。建议在重要桌面环境中使用前自行验证备份和恢复结果。
 
 程序运行所需的 ICO 和 PNG 保存在 `src/DeskSnapshot/Assets/`。设计源图包 `desksnapshot_pack/` 仅在本地保留，不纳入 Git。
 
@@ -20,6 +28,16 @@ DeskSnapshot 是一个轻量、离线的 Windows 桌面图标布局备份工具�
 - 简体中文、English 和跟随系统语言
 - 便携版与单项目 MSIX 打包
 - 深浅色主题与 Fluent/Mica 界面
+
+## 获取与安装
+
+正式构建会发布在 [GitHub Releases](https://github.com/FeranyDev/DeskSnapshot/releases)。
+
+- **Portable**：解压后直接运行 `DeskSnapshot.exe`，无需管理员权限。
+- **MSIX**：适合包管理和系统集成，但安装包必须由本机信任的证书签名。
+- **Actions artifacts**：用于开发测试，测试签名 MSIX 不应被视为正式发行签名。
+
+DeskSnapshot 不需要管理员权限。开机自启只写入当前用户范围，备份和设置默认保存在当前用户的本地应用数据目录。
 
 ## 开发环境
 
@@ -74,4 +92,27 @@ artifacts/release/DeskSnapshot-<version>-win-x64/
 %TEMP%\DeskSnapshot-startup.log
 ```
 
-> 桌面图标读写依赖 Windows Explorer 的桌面 ListView。恢复过程中请勿重启 Explorer 或开启“自动排列图标”。
+## 隐私与数据
+
+- 布局、设置和日志仅保存在本机，应用不包含云同步或遥测上传。
+- 备份可能包含桌面图标显示名称、显示器型号和坐标。
+- 提交 Issue 前请从日志、截图和备份 JSON 中移除个人路径与私人图标名称。
+
+## 已知限制
+
+- 桌面图标读写依赖 Windows Explorer 的桌面 ListView，不支持第三方桌面外壳。
+- 恢复过程中请勿重启 Explorer 或开启 Windows“自动排列图标”。
+- 同名图标按其在 Explorer 中的出现顺序匹配。
+- 原显示器缺失时，显示器跟随恢复会安全回退到备份中的绝对坐标。
+- 当前仅构建和测试 x64 版本。
+
+## 参与和支持
+
+- 提交改动前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 和 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
+- 使用问题与诊断信息见 [SUPPORT.md](SUPPORT.md)。
+- 安全漏洞请按 [SECURITY.md](SECURITY.md) 私下报告。
+- 版本变化记录在 [CHANGELOG.md](CHANGELOG.md)。
+
+## 许可证
+
+DeskSnapshot 使用 [MIT License](LICENSE) 开源。

@@ -13,6 +13,13 @@ env:
   PROJECT_PATH: src/DeskSnapshot/DeskSnapshot.csproj
   RUNTIME_IDENTIFIER: win-x64
 
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build WinUI app

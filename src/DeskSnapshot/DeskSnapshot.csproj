@@ -15,6 +15,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
+    <Authors>FeranyDev</Authors>
+    <Company>FeranyDev</Company>
+    <Product>DeskSnapshot</Product>
+    <Description>Offline Windows desktop icon layout backup and restore tool.</Description>
+    <Copyright>Copyright © 2026 FeranyDev</Copyright>
+    <RepositoryUrl>https://github.com/FeranyDev/DeskSnapshot</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
