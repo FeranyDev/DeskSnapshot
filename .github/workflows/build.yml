@@ -26,9 +26,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7
       - name: Setup .NET
-        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
       - name: Restore
@@ -46,9 +46,9 @@ jobs:
     environment: signing
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@v7
       - name: Setup .NET
-        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
       - name: Restore reusable signing certificate
@@ -77,13 +77,13 @@ jobs:
           -MsixFolder "artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/msix"
           -TrustCertificatePath "artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/DeskSnapshot-Signing.cer"
       - name: Upload portable artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: DeskSnapshot-1.0.${{ github.run_number }}-win-x64-portable
           path: artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/folder/
           if-no-files-found: error
       - name: Upload MSIX artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: DeskSnapshot-1.0.${{ github.run_number }}-win-x64-msix
           path: artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/msix/
