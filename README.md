@@ -37,8 +37,10 @@ DeskSnapshot 是一个轻量、离线的 Windows 桌面图标布局备份工具�
 正式构建会发布在 [GitHub Releases](https://github.com/FeranyDev/DeskSnapshot/releases)。
 
 - **Portable**：解压后直接运行 `DeskSnapshot.exe`，无需管理员权限。
-- **MSIX**：适合包管理和系统集成，但安装包必须由本机信任的证书签名。
-- **Actions artifacts**：用于开发测试，测试签名 MSIX 不应被视为正式发行签名。
+- **MSIX**：适合包管理和系统集成。首次安装前需信任同一 Release 中的 `DeskSnapshot-Signing.cer`；后续版本继续使用相同证书签名。
+- **Actions artifacts**：用于开发测试，但与本地包和 Release 复用同一签名证书；下载后仍需在本机信任公开 CER。
+
+Release 同时提供 `SHA256SUMS.txt`。安装前应核对 Portable ZIP、MSIX 和公开 CER 的 SHA-256；Release 永远不会包含 `.pfx`、密码或其他私钥材料。自签证书用于保持项目各构建渠道的签名身份一致，不等同于商业 CA 或 Microsoft Store 的公共信任。
 
 DeskSnapshot 不需要管理员权限。开机自启只写入当前用户范围，备份和设置默认保存在当前用户的本地应用数据目录。
 
@@ -79,7 +81,8 @@ dotnet test tests/DeskSnapshot.Tests/DeskSnapshot.Tests.csproj -c Release
 生成便携版和 MSIX：
 
 ```powershell
-./scripts/publish.ps1 -Mode All -Version 1.0.0 -Clean -CreateTestCertificate
+./scripts/initialize-signing-certificate.ps1 -ConfigureGitHub
+./scripts/publish.ps1 -Mode All -Version 1.0.0 -Clean
 ```
 
 也可以用 `-Mode Folder` 或 `-Mode Msix` 单独生成。输出位于：
@@ -88,14 +91,18 @@ dotnet test tests/DeskSnapshot.Tests/DeskSnapshot.Tests.csproj -c Release
 artifacts/release/DeskSnapshot-<version>-win-x64/
 ```
 
-测试证书仅用于本地安装和 CI 验证。正式发布时应使用与 `Package.appxmanifest` 中 Publisher 一致的代码签名证书，并通过 `-CertificatePath` 和 `-CertificatePassword` 传入。
+本地、Actions 构建和 GitHub Release 复用同一张自签代码签名证书。私钥只保存在当前用户证书库和受保护的 GitHub `signing` Environment Secret 中；运行器验证并导入 PFX 后立即删除临时文件，任务结束再清理临时证书库。公开发行物只包含不带私钥的 `.cer`。完整配置见 [发布与签名指南](docs/RELEASING.md)。
+
+当前签名 Subject 与 MSIX Publisher 统一为 `CN=DeskSnapshot`。更换 Subject 会产生新指纹并要求用户重新信任公开 CER，因此只能通过指南中的显式轮换命令执行。
 
 当前 Win32 桌面读取、恢复、托盘和后台逻辑可在 MSIX 的 `runFullTrust` 进程中运行。开机自启会自动选择实现方式：便携版使用当前用户 Run 项，MSIX 版使用清单声明的 `StartupTask`。
 
 ## GitHub Actions
 
-- `build.yml`：推送或 PR 时构建；推送到 `main` 后上传便携版和测试签名 MSIX。
-- `release.yml`：手动输入版本和发布模式，生成可下载构建产物。
+- `build.yml`：推送或 PR 时构建；推送到 `main` 后，经受保护的 `signing` Environment 批准，使用固定证书签名、验证并上传便携版和 MSIX。
+- `release.yml`：推送 `vMAJOR.MINOR.PATCH` 标签或手动输入版本后，使用同一张受保护的自签证书签名并验证 Portable/MSIX，生成分类版本说明、SHA-256 校验文件并自动创建 GitHub Release。
+
+维护者发布前还应完成[发布检查清单](docs/RELEASE_CHECKLIST.md)。
 
 工作流结构参考 [FeranyDev/AutoLock](https://github.com/FeranyDev/AutoLock/tree/main/.github/workflows)。
 

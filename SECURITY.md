@@ -21,3 +21,11 @@ You should receive an acknowledgement within 7 days. Please allow time for inves
 ## Scope notes
 
 DeskSnapshot reads and writes the Windows Explorer desktop ListView and stores layout data locally. Reports involving unexpected privilege escalation, unsafe file writes, package signing, startup persistence, or unintended disclosure of desktop data are especially helpful.
+
+## Signing key incidents
+
+DeskSnapshot uses one reusable self-signed certificate for local, Actions, and Release packages. The public `DeskSnapshot-Signing.cer`, its Subject, and its thumbprint are not secrets. PFX/P12/PVK files, private keys, export passwords, and the two GitHub signing Secrets are sensitive.
+
+Privately report any unexpected signer thumbprint, PFX appearing in source or artifacts, secret value in an Actions log, unsigned official artifact, or workflow able to use signing Secrets without the protected `signing` Environment. Do not attach suspected private-key material to an Issue or advisory; first request a secure transfer channel.
+
+If compromise is suspected, maintainers should disable the signing Environment, delete the signing Secrets, preserve relevant audit logs, remove affected artifacts, rotate the certificate, and document that users must trust the replacement public CER.

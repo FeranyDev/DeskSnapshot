@@ -7,7 +7,7 @@
 - [ ] Debug x64 build succeeds
 - [ ] Release x64 build succeeds
 - [ ] Chinese and English UI text were updated when applicable
-- [ ] No local backups, personal paths, certificates, or generated artifacts are included
+- [ ] No local backups, personal paths, private certificates/keys, passwords, or generated artifacts are included
 
 ## Screenshots
 

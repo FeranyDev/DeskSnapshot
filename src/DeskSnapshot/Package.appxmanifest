@@ -9,7 +9,7 @@
 
   <Identity
     Name="FeranyDev.DeskSnapshot"
-    Publisher="CN=FeranyDev"
+    Publisher="CN=DeskSnapshot"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="A1B0BFE2-816A-4E37-8CA9-2B40538DDF6C" PhonePublisherId="00000000-0000-0000-0000-000000000000" />

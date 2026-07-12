@@ -60,3 +60,5 @@ body:
           required: true
         - label: I removed private information from attachments.
           required: true
+        - label: I did not attach a PFX, private key, certificate password, or Base64 signing secret.
+          required: true

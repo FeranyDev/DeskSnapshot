@@ -8,3 +8,7 @@ artifacts/
 .appdata/
 .nuget/
 desksnapshot_pack/
+*.pfx
+*.p12
+*.pvk
+*.snk

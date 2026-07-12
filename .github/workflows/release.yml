@@ -1,62 +1,137 @@
-name: Release Package
+name: Signed Release
 
 on:
+  push:
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
     inputs:
       version:
-        description: Release version, for example 1.0.0
+        description: Numeric release version, for example 1.0.0
         required: true
         default: 1.0.0
-      mode:
-        description: Package mode
+      prerelease:
+        description: Publish as a prerelease
         required: true
-        default: All
-        type: choice
-        options: [All, Folder, Msix]
+        default: false
+        type: boolean
 
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  RUNTIME_IDENTIFIER: win-x64
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ github.ref }}-${{ inputs.version || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  package:
-    name: Package DeskSnapshot
-    runs-on: windows-latest
+  release:
+    name: Build, sign, and publish
+    runs-on: windows-2025
+    environment: signing
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+      - name: Checkout release source
+        uses: actions/checkout@9c091bb21b7c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release version
+        id: release
+        shell: pwsh
+        env:
+          DISPATCH_VERSION: ${{ inputs.version }}
+          DISPATCH_PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq "push") {
+            $tag = $env:GITHUB_REF_NAME
+            $prerelease = "false"
+          } else {
+            $tag = "v$($env:DISPATCH_VERSION.TrimStart('v'))"
+            $prerelease = $env:DISPATCH_PRERELEASE.ToLowerInvariant()
+          }
+          $versionMatch = [regex]::Match($tag, '^v(\d+\.\d+\.\d+(?:\.\d+)?)$')
+          if (-not $versionMatch.Success) {
+            throw "Release tags must use vMAJOR.MINOR.PATCH with numeric components only: $tag"
+          }
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "version=$($versionMatch.Groups[1].Value)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "prerelease=$prerelease" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Restore reusable signing certificate
+        id: signing-certificate
+        shell: pwsh
+        env:
+          DESKSNAPSHOT_SIGNING_CERTIFICATE_BASE64: ${{ secrets.DESKSNAPSHOT_SIGNING_CERTIFICATE_BASE64 }}
+          DESKSNAPSHOT_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.DESKSNAPSHOT_SIGNING_CERTIFICATE_PASSWORD }}
+          DESKSNAPSHOT_SIGNING_CERTIFICATE_THUMBPRINT: ${{ vars.DESKSNAPSHOT_SIGNING_CERTIFICATE_THUMBPRINT }}
+        run: ./scripts/restore-signing-certificate.ps1 -OutputPath (Join-Path $env:RUNNER_TEMP "DeskSnapshot-Signing.pfx")
+
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
         with:
           dotnet-version: 10.0.x
-      - name: Publish package
+
+      - name: Run unit tests
+        run: dotnet test tests/DeskSnapshot.Tests/DeskSnapshot.Tests.csproj --configuration Release
+
+      - name: Build and sign release packages
+        shell: pwsh
+        run: |
+          ./scripts/publish.ps1 `
+            -Mode All `
+            -RuntimeIdentifier $env:RUNTIME_IDENTIFIER `
+            -Version "${{ steps.release.outputs.version }}" `
+            -CertificateThumbprint "${{ steps.signing-certificate.outputs.thumbprint }}" `
+            -Clean `
+            -NoZip
+
+      - name: Verify release signatures
         shell: pwsh
         run: >
-          ./scripts/publish.ps1
-          -Mode "${{ inputs.mode }}"
-          -RuntimeIdentifier win-x64
-          -Version "${{ inputs.version }}"
-          -Clean
-          -NoZip
-          -CreateTestCertificate
-      - name: Upload portable artifact
-        if: ${{ inputs.mode == 'Folder' || inputs.mode == 'All' }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: DeskSnapshot-${{ inputs.version }}-win-x64-portable
-          path: artifacts/release/DeskSnapshot-${{ inputs.version }}-win-x64/folder/
-          if-no-files-found: error
-      - name: Upload MSIX artifact
-        if: ${{ inputs.mode == 'Msix' || inputs.mode == 'All' }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: DeskSnapshot-${{ inputs.version }}-win-x64-msix
-          path: artifacts/release/DeskSnapshot-${{ inputs.version }}-win-x64/msix/
-          if-no-files-found: error
+          ./scripts/verify-signatures.ps1
+          -PortableFolder "artifacts/release/DeskSnapshot-${{ steps.release.outputs.version }}-win-x64/folder"
+          -MsixFolder "artifacts/release/DeskSnapshot-${{ steps.release.outputs.version }}-win-x64/msix"
+          -TrustCertificatePath "artifacts/release/DeskSnapshot-${{ steps.release.outputs.version }}-win-x64/DeskSnapshot-Signing.cer"
+
+      - name: Prepare release assets and checksums
+        shell: pwsh
+        run: >
+          ./scripts/prepare-release-assets.ps1
+          -Version "${{ steps.release.outputs.version }}"
+          -RuntimeIdentifier $env:RUNTIME_IDENTIFIER
+
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          IS_PRERELEASE: ${{ steps.release.outputs.prerelease }}
+        run: |
+          gh release view $env:RELEASE_TAG 2>$null
+          if ($LASTEXITCODE -eq 0) { throw "Release $env:RELEASE_TAG already exists." }
+          $assets = @(Get-ChildItem artifacts/release-assets -File | Select-Object -ExpandProperty FullName)
+          $arguments = @(
+            "release", "create", $env:RELEASE_TAG
+            "--title", "DeskSnapshot $env:RELEASE_VERSION"
+            "--generate-notes"
+            "--target", $env:GITHUB_SHA
+          )
+          if ($env:GITHUB_EVENT_NAME -eq "push") { $arguments += "--verify-tag" }
+          if ($env:IS_PRERELEASE -eq "true") { $arguments += "--prerelease" }
+          $arguments += $assets
+          & gh @arguments
+          if ($LASTEXITCODE -ne 0) { throw "GitHub Release creation failed." }
+
+      - name: Remove temporary signing certificate
+        if: always()
+        shell: pwsh
+        run: |
+          if ("${{ steps.signing-certificate.outputs.thumbprint }}") {
+            ./scripts/remove-signing-certificate.ps1 -Thumbprint "${{ steps.signing-certificate.outputs.thumbprint }}"
+          }
+          Remove-Item -LiteralPath (Join-Path $env:RUNNER_TEMP "DeskSnapshot-Signing.pfx") -Force -ErrorAction SilentlyContinue

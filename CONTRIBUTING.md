@@ -27,7 +27,7 @@ dotnet test tests/DeskSnapshot.Tests/DeskSnapshot.Tests.csproj -c Release
 1. 从 `main` 创建主题分支，例如 `fix/preview-layout` 或 `feat/import-backup`。
 2. 保持改动聚焦，并同步更新中英文资源和相关文档。
 3. 至少验证单元测试以及 Debug、Release x64 构建。
-4. 不要提交本地备份、签名证书、构建产物、缓存或设计源文件。
+4. 不要提交本地备份、PFX/P12/PVK/SNK、证书密码、构建产物、缓存或设计源文件。Release 中公开的 CER 不含私钥，但普通功能 PR 通常也不应修改它。
 5. 提交 Pull Request，说明行为变化、验证方式和相关 Issue；界面变更建议附截图。
 
 建议使用简洁的 Conventional Commits 风格，例如：
@@ -44,3 +44,7 @@ docs: clarify MSIX installation
 - UI 文案不得直接只写一种语言；同步维护 `zh-CN` 与 `en-US` 资源。
 - 桌面读写涉及 Explorer 进程边界，必须保留超时、错误处理和安全回退。
 - 不得在日志、示例或测试中提交个人桌面图标名称和本地路径。
+- 外部贡献者不需要签名证书，也无法从 Pull Request 获取 `signing` Environment Secrets。签名产物由维护者在受保护工作流中生成。
+- 不要为解决 CI 问题而改用每次生成的新证书、把 PFX 转成仓库文件，或输出证书密码/Base64 内容。
+
+维护者处理签名或发行改动时，还需阅读 [docs/RELEASING.md](docs/RELEASING.md) 并逐项完成 [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)。

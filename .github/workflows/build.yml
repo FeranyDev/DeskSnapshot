@@ -26,9 +26,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
         with:
           dotnet-version: 10.0.x
       - name: Restore
@@ -43,32 +43,56 @@ jobs:
     runs-on: windows-latest
     needs: build
     if: github.event_name != 'pull_request'
+    environment: signing
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
         with:
           dotnet-version: 10.0.x
+      - name: Restore reusable signing certificate
+        id: signing-certificate
+        shell: pwsh
+        env:
+          DESKSNAPSHOT_SIGNING_CERTIFICATE_BASE64: ${{ secrets.DESKSNAPSHOT_SIGNING_CERTIFICATE_BASE64 }}
+          DESKSNAPSHOT_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.DESKSNAPSHOT_SIGNING_CERTIFICATE_PASSWORD }}
+          DESKSNAPSHOT_SIGNING_CERTIFICATE_THUMBPRINT: ${{ vars.DESKSNAPSHOT_SIGNING_CERTIFICATE_THUMBPRINT }}
+        run: ./scripts/restore-signing-certificate.ps1 -OutputPath (Join-Path $env:RUNNER_TEMP "DeskSnapshot-Signing.pfx")
       - name: Publish packages
         shell: pwsh
+        run: |
+          ./scripts/publish.ps1 `
+            -Mode All `
+            -RuntimeIdentifier win-x64 `
+            -Version "1.0.${{ github.run_number }}" `
+            -CertificateThumbprint "${{ steps.signing-certificate.outputs.thumbprint }}" `
+            -Clean `
+            -NoZip
+      - name: Verify build signatures
+        shell: pwsh
         run: >
-          ./scripts/publish.ps1
-          -Mode All
-          -RuntimeIdentifier win-x64
-          -Version "1.0.${{ github.run_number }}"
-          -Clean
-          -NoZip
-          -CreateTestCertificate
+          ./scripts/verify-signatures.ps1
+          -PortableFolder "artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/folder"
+          -MsixFolder "artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/msix"
+          -TrustCertificatePath "artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/DeskSnapshot-Signing.cer"
       - name: Upload portable artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: DeskSnapshot-1.0.${{ github.run_number }}-win-x64-portable
           path: artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/folder/
           if-no-files-found: error
       - name: Upload MSIX artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: DeskSnapshot-1.0.${{ github.run_number }}-win-x64-msix
           path: artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/msix/
           if-no-files-found: error
+      - name: Remove temporary signing certificate
+        if: always()
+        shell: pwsh
+        run: |
+          if ("${{ steps.signing-certificate.outputs.thumbprint }}") {
+            ./scripts/remove-signing-certificate.ps1 -Thumbprint "${{ steps.signing-certificate.outputs.thumbprint }}"
+          }
+          Remove-Item -LiteralPath (Join-Path $env:RUNNER_TEMP "DeskSnapshot-Signing.pfx") -Force -ErrorAction SilentlyContinue
