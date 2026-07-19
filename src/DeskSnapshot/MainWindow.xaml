@@ -545,6 +545,19 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Spacing="3">
+                                        <TextBlock x:Uid="StartMinimizedAtStartupTitle" local:LocalizationBindings.Key="StartMinimizedAtStartupTitle" Text="自启时最小化" />
+                                        <TextBlock x:Uid="StartMinimizedAtStartupDescription" local:LocalizationBindings.Key="StartMinimizedAtStartupDescription" Text="登录后不主动显示主窗口；后台模式开启时隐藏到通知区域。" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
+                                    </StackPanel>
+                                    <ToggleSwitch x:Name="StartMinimizedAtStartupToggle"
+                                                  Grid.Column="1"
+                                                  Toggled="BackgroundSettings_Changed" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Spacing="3">
                                         <TextBlock x:Uid="TrayModeTitle" local:LocalizationBindings.Key="TrayModeTitle" Text="关闭后在通知区域运行" />
                                         <TextBlock x:Uid="TrayModeDescription" local:LocalizationBindings.Key="TrayModeDescription" Text="后台继续自动备份；从托盘重新打开或退出。" FontSize="12" Foreground="{ThemeResource MutedTextBrush}" />
                                     </StackPanel>

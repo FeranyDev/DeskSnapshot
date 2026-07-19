@@ -13,17 +13,17 @@ Use this checklist for every public release. A checked item should be backed by 
 
 - [ ] All MSTest tests pass in Release configuration.
 - [ ] Debug and Release x64 builds complete without errors or warnings.
-- [ ] Backup, preview, comparison, display profile, monitor mapping, restore safety backup, tray mode, startup, and language switching have been smoke-tested on Windows Explorer.
+- [ ] Backup, preview, comparison, display profile, monitor mapping, restore safety backup, tray mode, normal startup, minimized startup, and language switching have been smoke-tested on Windows Explorer.
 - [ ] Portable and MSIX start successfully on a clean test account.
 
 ## Signing
 
-- [ ] The `signing` GitHub Environment requires approval and is restricted to protected `main`/release tags.
+- [ ] The `signing` GitHub Environment requires approval and is restricted to protected `main`/release tags; only the Release workflow references it.
 - [ ] `DESKSNAPSHOT_SIGNING_CERTIFICATE_BASE64` and `DESKSNAPSHOT_SIGNING_CERTIFICATE_PASSWORD` exist only as Environment Secrets.
 - [ ] `DESKSNAPSHOT_SIGNING_CERTIFICATE_THUMBPRINT` matches `%LOCALAPPDATA%\DeskSnapshot\Signing\certificate.json`.
 - [ ] The certificate Subject and packaged MSIX Publisher are both `CN=DeskSnapshot`.
 - [ ] The certificate is not expired and has a planned rotation date.
-- [ ] Actions reports successful SignTool verification for `DeskSnapshot.exe`, `DeskSnapshot.dll`, and the MSIX.
+- [ ] The Release workflow reports successful signature, hash, and pinned-thumbprint verification for `DeskSnapshot.exe`, `DeskSnapshot.dll`, and the MSIX.
 - [ ] The PFX does not appear in Actions artifacts or release assets; only `DeskSnapshot-Signing.cer` is public.
 
 ## Release assets
@@ -38,5 +38,5 @@ Use this checklist for every public release. A checked item should be backed by 
 
 - [ ] The GitHub Release and Build badges are healthy.
 - [ ] The published tag and assets are not replaced in place; corrections use a new patch version.
-- [ ] The restore step deleted the temporary runner PFX immediately, and the cleanup step removed the imported certificate/private key.
+- [ ] The Release restore step deleted the temporary PFX immediately, and its cleanup step removed the imported private key.
 - [ ] Known issues and support instructions are updated when necessary.

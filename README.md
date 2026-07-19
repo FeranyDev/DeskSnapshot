@@ -27,7 +27,7 @@ DeskSnapshot 是一个轻量、离线的 Windows 桌面图标布局备份工具�
 - WinUI 原生可折叠导航栏
 - 独立“关于”页面集中展示版本、本地数据位置和隐私说明
 - 定时、程序启动、显示环境变化和图标布局变化自动备份
-- 当前用户开机自启与系统托盘后台运行，支持托盘快速备份
+- 当前用户开机自启、自启时最小化与系统托盘后台运行，支持托盘快速备份
 - 简体中文、English 和跟随系统语言
 - 便携版与单项目 MSIX 打包
 - 深浅色主题与 Fluent/Mica 界面
@@ -38,7 +38,7 @@ DeskSnapshot 是一个轻量、离线的 Windows 桌面图标布局备份工具�
 
 - **Portable**：解压后直接运行 `DeskSnapshot.exe`，无需管理员权限。
 - **MSIX**：适合包管理和系统集成。首次安装前需信任同一 Release 中的 `DeskSnapshot-Signing.cer`；后续版本继续使用相同证书签名。
-- **Actions artifacts**：用于开发测试，但与本地包和 Release 复用同一签名证书；下载后仍需在本机信任公开 CER。
+- **Actions artifacts**：仅用于开发测试，每次 Build 使用独立的临时证书，不代表正式发布身份，也不保证可直接覆盖升级。
 
 Release 同时提供 `SHA256SUMS.txt`。安装前应核对 Portable ZIP、MSIX 和公开 CER 的 SHA-256；Release 永远不会包含 `.pfx`、密码或其他私钥材料。自签证书用于保持项目各构建渠道的签名身份一致，不等同于商业 CA 或 Microsoft Store 的公共信任。
 
@@ -66,7 +66,7 @@ dotnet run --project src/DeskSnapshot/DeskSnapshot.csproj -p:Platform=x64
 dotnet test tests/DeskSnapshot.Tests/DeskSnapshot.Tests.csproj -c Release
 ```
 
-当前覆盖桌面差异匹配、重复名称和显示环境判断、25,000 图标性能场景、备份父子关系、自动备份保留策略，以及 JSON 往返、覆盖写入和损坏文件隔离。
+当前覆盖桌面差异匹配、重复名称和显示环境判断、25,000 图标性能场景、备份父子关系、自动备份保留策略、启动来源识别，以及 JSON 往返、覆盖写入和损坏文件隔离。
 
 首次还原需要联网下载 Windows App SDK NuGet 包。备份数据保存在：
 
@@ -91,15 +91,15 @@ dotnet test tests/DeskSnapshot.Tests/DeskSnapshot.Tests.csproj -c Release
 artifacts/release/DeskSnapshot-<version>-win-x64/
 ```
 
-本地、Actions 构建和 GitHub Release 复用同一张自签代码签名证书。私钥只保存在当前用户证书库和受保护的 GitHub `signing` Environment Secret 中；运行器验证并导入 PFX 后立即删除临时文件，任务结束再清理临时证书库。公开发行物只包含不带私钥的 `.cer`。完整配置见 [发布与签名指南](docs/RELEASING.md)。
+本地正式包和 GitHub Release 复用同一张自签代码签名证书。长期私钥只保存在当前用户证书库和受保护的 GitHub `signing` Environment Secret 中。普通 Build 在 Runner 内存中生成一次性证书并在任务结束时删除临时 PFX，不访问正式签名 Secrets。公开发行物只包含不带私钥的 `.cer`。完整配置见 [发布与签名指南](docs/RELEASING.md)。
 
 当前签名 Subject 与 MSIX Publisher 统一为 `CN=DeskSnapshot`。更换 Subject 会产生新指纹并要求用户重新信任公开 CER，因此只能通过指南中的显式轮换命令执行。
 
-当前 Win32 桌面读取、恢复、托盘和后台逻辑可在 MSIX 的 `runFullTrust` 进程中运行。开机自启会自动选择实现方式：便携版使用当前用户 Run 项，MSIX 版使用清单声明的 `StartupTask`。
+当前 Win32 桌面读取、恢复、托盘和后台逻辑可在 MSIX 的 `runFullTrust` 进程中运行。开机自启会自动选择实现方式：便携版使用带 `--startup` 标记的当前用户 Run 项，MSIX 版使用清单声明的 `StartupTask`。开启“自启时最小化”后，后台模式会静默进入通知区域，否则窗口最小化到任务栏；手动启动不受影响。
 
 ## GitHub Actions
 
-- `build.yml`：推送或 PR 时构建；推送到 `main` 后，经受保护的 `signing` Environment 批准，使用固定证书签名、验证并上传便携版和 MSIX。
+- `build.yml`：推送或 PR 时编译并测试；推送到 `main` 后使用当前 Runner 临时生成的一次性证书签名、验证并上传测试用便携版和 MSIX，无需 `signing` Environment 审批。
 - `release.yml`：推送 `vMAJOR.MINOR.PATCH` 标签或手动输入版本后，使用同一张受保护的自签证书签名并验证 Portable/MSIX，生成分类版本说明、SHA-256 校验文件并自动创建 GitHub Release。
 
 维护者发布前还应完成[发布检查清单](docs/RELEASE_CHECKLIST.md)。

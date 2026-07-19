@@ -43,7 +43,6 @@ jobs:
     runs-on: windows-latest
     needs: build
     if: github.event_name != 'pull_request'
-    environment: signing
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -51,24 +50,26 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
-      - name: Restore reusable signing certificate
-        id: signing-certificate
+      - name: Create temporary build signing certificate
+        id: build-certificate
         shell: pwsh
-        env:
-          DESKSNAPSHOT_SIGNING_CERTIFICATE_BASE64: ${{ secrets.DESKSNAPSHOT_SIGNING_CERTIFICATE_BASE64 }}
-          DESKSNAPSHOT_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.DESKSNAPSHOT_SIGNING_CERTIFICATE_PASSWORD }}
-          DESKSNAPSHOT_SIGNING_CERTIFICATE_THUMBPRINT: ${{ vars.DESKSNAPSHOT_SIGNING_CERTIFICATE_THUMBPRINT }}
-        run: ./scripts/restore-signing-certificate.ps1 -OutputPath (Join-Path $env:RUNNER_TEMP "DeskSnapshot-Signing.pfx")
+        run: ./scripts/new-temporary-signing-certificate.ps1 -OutputDirectory $env:RUNNER_TEMP
       - name: Publish packages
         shell: pwsh
         run: |
-          ./scripts/publish.ps1 `
-            -Mode All `
-            -RuntimeIdentifier win-x64 `
-            -Version "1.0.${{ github.run_number }}" `
-            -CertificateThumbprint "${{ steps.signing-certificate.outputs.thumbprint }}" `
-            -Clean `
-            -NoZip
+          $certificatePassword = Get-Content -LiteralPath "${{ steps.build-certificate.outputs.password_path }}" -Raw
+          try {
+            ./scripts/publish.ps1 `
+              -Mode All `
+              -RuntimeIdentifier win-x64 `
+              -Version "1.0.${{ github.run_number }}" `
+              -CertificatePath "${{ steps.build-certificate.outputs.pfx_path }}" `
+              -CertificatePassword $certificatePassword `
+              -Clean `
+              -NoZip
+          } finally {
+            $certificatePassword = $null
+          }
       - name: Verify build signatures
         timeout-minutes: 5
         shell: pwsh
@@ -89,11 +90,9 @@ jobs:
           name: DeskSnapshot-1.0.${{ github.run_number }}-win-x64-msix
           path: artifacts/release/DeskSnapshot-1.0.${{ github.run_number }}-win-x64/msix/
           if-no-files-found: error
-      - name: Remove temporary signing certificate
+      - name: Remove temporary build signing certificate
         if: always()
         shell: pwsh
         run: |
-          if ("${{ steps.signing-certificate.outputs.thumbprint }}") {
-            ./scripts/remove-signing-certificate.ps1 -Thumbprint "${{ steps.signing-certificate.outputs.thumbprint }}"
-          }
-          Remove-Item -LiteralPath (Join-Path $env:RUNNER_TEMP "DeskSnapshot-Signing.pfx") -Force -ErrorAction SilentlyContinue
+          Remove-Item -LiteralPath (Join-Path $env:RUNNER_TEMP "DeskSnapshot-Build-Signing.pfx") -Force -ErrorAction SilentlyContinue
+          Remove-Item -LiteralPath (Join-Path $env:RUNNER_TEMP "DeskSnapshot-Build-Signing.password") -Force -ErrorAction SilentlyContinue

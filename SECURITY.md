@@ -24,8 +24,8 @@ DeskSnapshot reads and writes the Windows Explorer desktop ListView and stores l
 
 ## Signing key incidents
 
-DeskSnapshot uses one reusable self-signed certificate for local, Actions, and Release packages. The public `DeskSnapshot-Signing.cer`, its Subject, and its thumbprint are not secrets. PFX/P12/PVK files, private keys, export passwords, and the two GitHub signing Secrets are sensitive.
+DeskSnapshot uses one reusable self-signed certificate for local official packages and GitHub Releases. Ordinary Build artifacts use disposable per-run certificates and never access the reusable key. The official public `DeskSnapshot-Signing.cer`, its Subject, and its thumbprint are not secrets. Reusable PFX/P12/PVK files, private keys, export passwords, and the two GitHub signing Secrets are sensitive.
 
-Privately report any unexpected signer thumbprint, PFX appearing in source or artifacts, secret value in an Actions log, unsigned official artifact, or workflow able to use signing Secrets without the protected `signing` Environment. Do not attach suspected private-key material to an Issue or advisory; first request a secure transfer channel.
+Privately report any unexpected signer thumbprint on an official Release, PFX appearing in source or artifacts, secret value in an Actions log, unsigned official artifact, or workflow able to use signing Secrets without the protected `signing` Environment. A changing thumbprint on ordinary Build artifacts is expected because those certificates are disposable. Do not attach suspected private-key material to an Issue or advisory; first request a secure transfer channel.
 
 If compromise is suspected, maintainers should disable the signing Environment, delete the signing Secrets, preserve relevant audit logs, remove affected artifacts, rotate the certificate, and document that users must trust the replacement public CER.

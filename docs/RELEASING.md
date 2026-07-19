@@ -1,6 +1,6 @@
 # DeskSnapshot release and signing guide
 
-DeskSnapshot uses one reusable self-signed code-signing certificate for local packages, GitHub Actions artifacts, and GitHub Releases. Reusing the same certificate keeps the Publisher and signer thumbprint stable across upgrades.
+DeskSnapshot uses one reusable self-signed code-signing certificate for local official packages and GitHub Releases. Reusing that certificate keeps the Publisher and signer thumbprint stable across official upgrades. Ordinary Build artifacts use a disposable per-run certificate and are not official release packages.
 
 The configured certificate Subject and default MSIX Publisher are `CN=DeskSnapshot`. The application display name remains `DeskSnapshot`; the Subject is the package signing identity.
 
@@ -28,9 +28,9 @@ The encrypted Secrets are stored in the `signing` Environment:
 - `DESKSNAPSHOT_SIGNING_CERTIFICATE_BASE64`
 - `DESKSNAPSHOT_SIGNING_CERTIFICATE_PASSWORD`
 
-The same environment also stores the non-secret variable `DESKSNAPSHOT_SIGNING_CERTIFICATE_THUMBPRINT`. Every remote job rejects a PFX whose thumbprint differs from this pinned local identity, preventing an accidental certificate replacement from silently changing the signer.
+The same environment also stores the non-secret variable `DESKSNAPSHOT_SIGNING_CERTIFICATE_THUMBPRINT`. The Release job rejects a PFX whose thumbprint differs from this pinned local identity, preventing an accidental certificate replacement from silently changing the official signer.
 
-Configure the `signing` Environment with required reviewers and deployment restrictions for `main` and protected `v*.*.*` tags. Both remote signing jobs use this environment, so ordinary pull requests cannot access the private key.
+Configure the `signing` Environment with required reviewers and deployment restrictions for `main` and protected `v*.*.*` tags. Only `release.yml` uses this environment; ordinary pushes, Build jobs, and pull requests cannot access the reusable private key.
 
 Back up the certificate securely outside the repository if loss recovery is required. Losing both the local private key and GitHub Secret means future packages cannot use the same signer.
 
@@ -52,14 +52,14 @@ Unsigned output must be explicitly requested and must not be published:
 
 ## GitHub Actions and Releases
 
-For pushes to `main`, `build.yml` restores the same PFX under the runner temporary directory, validates its pinned thumbprint, imports it into the ephemeral runner's current-user certificate store, and immediately deletes the PFX. Packaging receives only the public thumbprint, so the password is never placed in SignTool process arguments. An `always()` cleanup step removes the imported private key from the runner certificate store.
+For pushes to `main`, `build.yml` creates an RSA-3072/SHA-256 code-signing certificate in memory with the required `CN=DeskSnapshot` Publisher, exports it only to the runner temporary directory with a masked random password, signs and verifies the test packages, and deletes the PFX in an `always()` step. This job does not reference the `signing` Environment or reusable signing Secrets. Its artifacts have a different signer on every run and must not be presented as official releases or relied on for upgrade identity.
 
 For `vMAJOR.MINOR.PATCH` tags, `release.yml`:
 
 1. Runs all unit tests.
 2. Restores, validates, imports, and immediately deletes the same temporary PFX from the protected `signing` Environment.
 3. Builds and signs the Portable EXE/DLL and MSIX.
-4. Temporarily trusts only the public certificate while SignTool verifies every signature.
+4. Verifies every signature, file hash, and signer thumbprint without modifying the runner's system root store.
 5. Creates the Portable ZIP, MSIX, public CER, and `SHA256SUMS.txt`.
 6. Generates categorized release notes and publishes the files to GitHub Releases.
 7. Removes the temporary PFX even when an earlier step fails.

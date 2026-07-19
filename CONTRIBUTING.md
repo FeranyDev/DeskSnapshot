@@ -44,7 +44,7 @@ docs: clarify MSIX installation
 - UI 文案不得直接只写一种语言；同步维护 `zh-CN` 与 `en-US` 资源。
 - 桌面读写涉及 Explorer 进程边界，必须保留超时、错误处理和安全回退。
 - 不得在日志、示例或测试中提交个人桌面图标名称和本地路径。
-- 外部贡献者不需要签名证书，也无法从 Pull Request 获取 `signing` Environment Secrets。签名产物由维护者在受保护工作流中生成。
-- 不要为解决 CI 问题而改用每次生成的新证书、把 PFX 转成仓库文件，或输出证书密码/Base64 内容。
+- 外部贡献者不需要签名证书，Pull Request 和普通 Build 都无法获取 `signing` Environment Secrets。推送到 `main` 的测试包使用 Runner 内的一次性证书；正式 Release 才使用受保护的固定证书。
+- 不要把临时 Build 证书用于 Release、把 PFX 写入仓库或产物，或输出任何证书密码/Base64 私钥内容。
 
 维护者处理签名或发行改动时，还需阅读 [docs/RELEASING.md](docs/RELEASING.md) 并逐项完成 [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)。

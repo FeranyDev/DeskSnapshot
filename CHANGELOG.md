@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Release automation using one protected self-signed certificate across local, Actions, and Release builds, with signature verification, generated notes, checksums, and GitHub Release assets.
+- Release automation using one protected self-signed certificate across local official and Release builds, with signature verification, generated notes, checksums, and GitHub Release assets.
 - Maintainer signing guide, user certificate-safety guidance, incident response notes, and a repeatable release checklist.
 - Named display layout profiles with stable monitor-topology matching, preview, safe restore suggestions, and remembered manual monitor mappings.
 - Manual, scheduled, event-triggered, tray, and pre-restore backups.
@@ -19,13 +19,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - MSTest coverage for comparison, backup relationships, retention, and JSON storage recovery.
 - Monitor model, device identity, and optional monitor-aware restore.
 - Configurable automatic-backup retention.
-- Startup registration and notification-area background mode.
+- Startup registration, optional minimized startup, and notification-area background mode.
 - Simplified Chinese, English, and system-language selection.
 - Portable and MSIX packaging scripts with GitHub Actions builds.
 
 ### Changed
 
 - Standardized the reusable signing certificate Subject and MSIX Publisher as `CN=DeskSnapshot`, with guarded local/GitHub rotation.
+- Changed ordinary Build artifacts to use disposable per-run signing certificates, reserving the protected reusable key for Releases.
 - Refined responsive WinUI 3 navigation, settings, About page, and selection states.
 - Improved DPI-aware virtual desktop capture and preview sizing.
 

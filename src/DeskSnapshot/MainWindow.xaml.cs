@@ -24,6 +24,7 @@ public sealed partial class MainWindow : Window
     private readonly List<BackupPreviewWindow> _previewWindows = [];
     private readonly DispatcherTimer _scheduledBackupTimer = new();
     private readonly DispatcherTimer _eventWatchTimer = new();
+    private readonly bool _launchedAtStartup;
     private AppSettings _settings = new();
     private AppWindow? _appWindow;
     private TrayIconService? _trayIconService;
@@ -33,6 +34,7 @@ public sealed partial class MainWindow : Window
     private bool _trayBackupBusy;
     private bool _automaticBackupsSuspended;
     private bool _syncingBackupSelection;
+    private bool _updatingBackgroundSettings;
     private bool _isExiting;
     private string? _lastDesktopFingerprint;
     private string? _lastDisplayFingerprint;
@@ -44,8 +46,9 @@ public sealed partial class MainWindow : Window
     public ObservableCollection<DisplayProfileListItem> DisplayProfiles { get; } = [];
     public CollectionViewSource BackupTimelineSource { get; } = new() { IsSourceGrouped = true };
 
-    public MainWindow()
+    public MainWindow(bool launchedAtStartup = false)
     {
+        _launchedAtStartup = launchedAtStartup;
         App.Log("MainWindow: InitializeComponent begin");
         InitializeComponent();
         LocalizationBindings.Apply(RootGrid);
@@ -118,11 +121,23 @@ public sealed partial class MainWindow : Window
             _backups.AddRange(await _store.LoadAsync());
             _settings = await _settingsStore.LoadAsync();
             _settings.RunAtStartup = await _startupService.GetIsEnabledAsync();
+            if (_settings.RunAtStartup)
+            {
+                try
+                {
+                    await _startupService.RefreshPortableRegistrationAsync();
+                }
+                catch (Exception exception)
+                {
+                    App.Log($"Unable to refresh portable startup registration: {exception.Message}");
+                }
+            }
             RefreshBackupItems();
             RefreshEnvironmentSummary();
             ApplySettingsToUi();
             _settingsLoaded = true;
             ConfigureTrayMode();
+            ApplyStartupWindowState();
             await InitializeAutoBackupAsync();
             ConfigureAutoBackupTimers();
         }
@@ -869,6 +884,8 @@ public sealed partial class MainWindow : Window
         _settings.AutomaticBackupRetention = Math.Clamp(_settings.AutomaticBackupRetention, 1, 200);
         AutomaticBackupRetentionNumberBox.Value = _settings.AutomaticBackupRetention;
         RunAtStartupToggle.IsOn = _settings.RunAtStartup;
+        StartMinimizedAtStartupToggle.IsOn = _settings.StartMinimizedAtStartup;
+        StartMinimizedAtStartupToggle.IsEnabled = _settings.RunAtStartup;
         MinimizeToTrayToggle.IsOn = _settings.MinimizeToTray;
 
         var language = LocalizationService.NormalizeLanguage(_settings.UiLanguage);
@@ -892,14 +909,17 @@ public sealed partial class MainWindow : Window
 
     private async void BackgroundSettings_Changed(object sender, RoutedEventArgs e)
     {
-        if (!_settingsLoaded)
+        if (!_settingsLoaded || _updatingBackgroundSettings)
         {
             return;
         }
 
+        _updatingBackgroundSettings = true;
         var previousStartup = _settings.RunAtStartup;
+        var previousStartupMinimized = _settings.StartMinimizedAtStartup;
         var previousTrayMode = _settings.MinimizeToTray;
         var requestedStartup = RunAtStartupToggle.IsOn;
+        var requestedStartupMinimized = StartMinimizedAtStartupToggle.IsOn;
         var requestedTrayMode = MinimizeToTrayToggle.IsOn;
         try
         {
@@ -908,7 +928,9 @@ public sealed partial class MainWindow : Window
                 await _startupService.SetEnabledAsync(requestedStartup);
             }
             _settings.RunAtStartup = requestedStartup;
+            _settings.StartMinimizedAtStartup = requestedStartupMinimized;
             _settings.MinimizeToTray = requestedTrayMode;
+            StartMinimizedAtStartupToggle.IsEnabled = requestedStartup;
             ConfigureTrayMode();
             await _settingsStore.SaveAsync(_settings);
             UpdateBackgroundModeStatus();
@@ -924,11 +946,18 @@ public sealed partial class MainWindow : Window
                 App.Log($"Unable to roll back startup setting: {rollbackException}");
             }
             _settings.RunAtStartup = previousStartup;
+            _settings.StartMinimizedAtStartup = previousStartupMinimized;
             _settings.MinimizeToTray = previousTrayMode;
             RunAtStartupToggle.IsOn = previousStartup;
+            StartMinimizedAtStartupToggle.IsOn = previousStartupMinimized;
+            StartMinimizedAtStartupToggle.IsEnabled = previousStartup;
             MinimizeToTrayToggle.IsOn = previousTrayMode;
             ConfigureTrayMode();
             ShowNotice(LocalizationService.Get("BackgroundSettingsFailed"), exception.Message, InfoBarSeverity.Error);
+        }
+        finally
+        {
+            _updatingBackgroundSettings = false;
         }
     }
 
@@ -965,6 +994,7 @@ public sealed partial class MainWindow : Window
     {
         var modes = new List<string>();
         if (_settings.RunAtStartup) modes.Add(LocalizationService.Get("RunAtStartupEnabled"));
+        if (_settings.RunAtStartup && _settings.StartMinimizedAtStartup) modes.Add(LocalizationService.Get("StartMinimizedAtStartupEnabled"));
         if (_settings.MinimizeToTray) modes.Add(LocalizationService.Get("TrayModeEnabled"));
         BackgroundModeStatusText.Text = modes.Count == 0
             ? LocalizationService.Get("BackgroundModeOff")
@@ -1300,11 +1330,31 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void HideToTray()
+    private void ApplyStartupWindowState()
+    {
+        if (!_launchedAtStartup || !_settings.StartMinimizedAtStartup)
+        {
+            return;
+        }
+
+        App.Log($"Applying minimized startup state, tray={_settings.MinimizeToTray}");
+        if (_settings.MinimizeToTray && _trayIconService is not null)
+        {
+            HideToTray(showNotification: false);
+            return;
+        }
+
+        ShowWindow(_windowHandle, 6);
+    }
+
+    private void HideToTray(bool showNotification = true)
     {
         ClosePreviewWindows();
         ShowWindow(_windowHandle, 0);
-        _trayIconService?.ShowNotification(LocalizationService.Get("TrayRunningTitle"), LocalizationService.Get("TrayRunningMessage"));
+        if (showNotification)
+        {
+            _trayIconService?.ShowNotification(LocalizationService.Get("TrayRunningTitle"), LocalizationService.Get("TrayRunningMessage"));
+        }
     }
 
     private void ShowFromTray()

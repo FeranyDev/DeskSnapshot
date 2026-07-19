@@ -10,6 +10,7 @@ public sealed class AppSettings
     public bool BackupOnDesktopChange { get; set; }
     public int AutomaticBackupRetention { get; set; } = 20;
     public bool RunAtStartup { get; set; }
+    public bool StartMinimizedAtStartup { get; set; }
     public bool MinimizeToTray { get; set; }
     public string UiLanguage { get; set; } = "system";
     public Dictionary<string, Dictionary<string, string>> MonitorMappings { get; set; } = [];

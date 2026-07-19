@@ -55,6 +55,8 @@
   <data name="BackgroundInitial.Text" xml:space="preserve"><value>可选开机启动或通知区域运行。</value></data>
   <data name="RunAtStartupTitle.Text" xml:space="preserve"><value>开机启动</value></data>
   <data name="RunAtStartupDescription.Text" xml:space="preserve"><value>随当前 Windows 用户登录启动。</value></data>
+  <data name="StartMinimizedAtStartupTitle.Text" xml:space="preserve"><value>自启时最小化</value></data>
+  <data name="StartMinimizedAtStartupDescription.Text" xml:space="preserve"><value>登录后不主动显示主窗口；后台模式开启时隐藏到通知区域。</value></data>
   <data name="TrayModeTitle.Text" xml:space="preserve"><value>关闭后在通知区域运行</value></data>
   <data name="TrayModeDescription.Text" xml:space="preserve"><value>后台继续自动备份；从托盘重新打开或退出。</value></data>
   <data name="ThemeTitle.Text" xml:space="preserve"><value>应用主题</value></data>
@@ -184,6 +186,7 @@
   <data name="SelectionHintDynamic" xml:space="preserve"><value>选择记录后可预览、恢复或删除</value></data>
   <data name="BusyText" xml:space="preserve"><value>正在处理桌面布局…</value></data>
   <data name="RunAtStartupEnabled" xml:space="preserve"><value>已开机自启</value></data>
+  <data name="StartMinimizedAtStartupEnabled" xml:space="preserve"><value>自启时最小化</value></data>
   <data name="TrayModeEnabled" xml:space="preserve"><value>已启用后台运行</value></data>
   <data name="BackgroundModeOff" xml:space="preserve"><value>可选开机启动或通知区域运行。</value></data>
   <data name="TrayUnavailable" xml:space="preserve"><value>当前系统无法创建通知区域图标。</value></data>

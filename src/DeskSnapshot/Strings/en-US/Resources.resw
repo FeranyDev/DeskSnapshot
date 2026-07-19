@@ -55,6 +55,8 @@
   <data name="BackgroundInitial.Text" xml:space="preserve"><value>Optionally start with Windows or run in the notification area.</value></data>
   <data name="RunAtStartupTitle.Text" xml:space="preserve"><value>Start with Windows</value></data>
   <data name="RunAtStartupDescription.Text" xml:space="preserve"><value>Start when the current Windows user signs in.</value></data>
+  <data name="StartMinimizedAtStartupTitle.Text" xml:space="preserve"><value>Start minimized</value></data>
+  <data name="StartMinimizedAtStartupDescription.Text" xml:space="preserve"><value>Do not show the main window after sign-in; hide in the notification area when background mode is enabled.</value></data>
   <data name="TrayModeTitle.Text" xml:space="preserve"><value>Keep running after the window closes</value></data>
   <data name="TrayModeDescription.Text" xml:space="preserve"><value>Automatic backups continue; reopen or quit from the tray.</value></data>
   <data name="ThemeTitle.Text" xml:space="preserve"><value>Theme</value></data>
@@ -184,6 +186,7 @@
   <data name="SelectionHintDynamic" xml:space="preserve"><value>Select a backup to preview, restore, or delete</value></data>
   <data name="BusyText" xml:space="preserve"><value>Processing desktop layout…</value></data>
   <data name="RunAtStartupEnabled" xml:space="preserve"><value>Starts with Windows</value></data>
+  <data name="StartMinimizedAtStartupEnabled" xml:space="preserve"><value>Starts minimized</value></data>
   <data name="TrayModeEnabled" xml:space="preserve"><value>Background mode enabled</value></data>
   <data name="BackgroundModeOff" xml:space="preserve"><value>Optionally start with Windows or run in the notification area.</value></data>
   <data name="TrayUnavailable" xml:space="preserve"><value>The notification area icon is unavailable on this system.</value></data>

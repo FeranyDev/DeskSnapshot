@@ -56,7 +56,17 @@ public sealed class StartupService
             throw new InvalidOperationException(LocalizationService.Get("ExecutablePathUnavailable"));
         }
 
-        key.SetValue(ValueName, $"\"{executablePath}\"");
+        key.SetValue(ValueName, $"\"{executablePath}\" {StartupLaunchDetector.StartupArgument}");
+    }
+
+    public async Task RefreshPortableRegistrationAsync()
+    {
+        if (AppDataPathService.IsPackaged() || !await GetIsEnabledAsync())
+        {
+            return;
+        }
+
+        await SetEnabledAsync(true);
     }
 
 }

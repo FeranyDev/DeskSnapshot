@@ -15,5 +15,6 @@
     <Compile Include="..\..\src\DeskSnapshot\Services\DesktopLayoutComparisonService.cs" Link="Services\DesktopLayoutComparisonService.cs" />
     <Compile Include="..\..\src\DeskSnapshot\Services\DisplayTopologyService.cs" Link="Services\DisplayTopologyService.cs" />
     <Compile Include="..\..\src\DeskSnapshot\Services\MonitorMappingService.cs" Link="Services\MonitorMappingService.cs" />
+    <Compile Include="..\..\src\DeskSnapshot\Services\StartupLaunchDetector.cs" Link="Services\StartupLaunchDetector.cs" />
   </ItemGroup>
 </Project>
