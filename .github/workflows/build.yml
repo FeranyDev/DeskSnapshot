@@ -70,6 +70,7 @@ jobs:
             -Clean `
             -NoZip
       - name: Verify build signatures
+        timeout-minutes: 5
         shell: pwsh
         run: >
           ./scripts/verify-signatures.ps1
